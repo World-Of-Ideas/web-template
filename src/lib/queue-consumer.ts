@@ -2,6 +2,16 @@ import type { EmailJob } from "./queue";
 import { sendEmail } from "./resend";
 import { generateUnsubscribeToken } from "./waitlist";
 
+/** Escape HTML special characters to prevent injection in email templates. */
+function escapeHtml(str: string): string {
+	return str
+		.replace(/&/g, "&amp;")
+		.replace(/</g, "&lt;")
+		.replace(/>/g, "&gt;")
+		.replace(/"/g, "&quot;")
+		.replace(/'/g, "&#39;");
+}
+
 async function buildUnsubscribeHeaders(email: string, env: CloudflareEnv) {
 	const secret = (env as unknown as Record<string, unknown>).UNSUBSCRIBE_SECRET as string;
 	const token = await generateUnsubscribeToken(email, secret);
@@ -23,13 +33,15 @@ export async function handleEmailQueue(
 			switch (job.type) {
 				case "waitlist_confirmation": {
 					const headers = await buildUnsubscribeHeaders(job.payload.email, env);
+					const name = escapeHtml(job.payload.name);
+					const referralUrl = `${env.SITE_URL}/waitlist/${encodeURIComponent(job.payload.referralCode)}`;
 					await sendEmail(env.RESEND_API_KEY, {
 						from: env.FROM_EMAIL,
 						to: job.payload.email,
 						subject: "You're on the waitlist!",
-						html: `<p>Hi ${job.payload.name},</p>
+						html: `<p>Hi ${name},</p>
 <p>You're #${job.payload.position} on the waiting list!</p>
-<p>Share your referral link to move up: <a href="${env.SITE_URL}/waitlist/${job.payload.referralCode}">${env.SITE_URL}/waitlist/${job.payload.referralCode}</a></p>`,
+<p>Share your referral link to move up: <a href="${referralUrl}">${escapeHtml(referralUrl)}</a></p>`,
 						headers,
 					});
 					break;
@@ -37,11 +49,12 @@ export async function handleEmailQueue(
 
 				case "referral_notification": {
 					const headers = await buildUnsubscribeHeaders(job.payload.email, env);
+					const name = escapeHtml(job.payload.name);
 					await sendEmail(env.RESEND_API_KEY, {
 						from: env.FROM_EMAIL,
 						to: job.payload.email,
 						subject: "A friend joined via your referral!",
-						html: `<p>Hi ${job.payload.name},</p>
+						html: `<p>Hi ${name},</p>
 <p>Someone just joined using your referral link! Your effective position is now #${job.payload.newPosition}.</p>`,
 						headers,
 					});
@@ -57,16 +70,20 @@ export async function handleEmailQueue(
 					});
 					break;
 
-				case "contact_receipt":
+				case "contact_receipt": {
+					const name = escapeHtml(job.payload.name);
+					const email = escapeHtml(job.payload.email);
+					const msg = escapeHtml(job.payload.message);
 					await sendEmail(env.RESEND_API_KEY, {
 						from: env.FROM_EMAIL,
 						to: env.CONTACT_EMAIL,
-						subject: `New contact form submission from ${job.payload.name}`,
-						html: `<p><strong>From:</strong> ${job.payload.name} (${job.payload.email})</p>
+						subject: `New contact form submission from ${name}`,
+						html: `<p><strong>From:</strong> ${name} (${email})</p>
 <p><strong>Message:</strong></p>
-<p>${job.payload.message}</p>`,
+<p>${msg}</p>`,
 					});
 					break;
+				}
 			}
 
 			message.ack();

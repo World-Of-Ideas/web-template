@@ -1,11 +1,17 @@
 import { NextRequest } from "next/server";
 import { cookies } from "next/headers";
 import { getEnv } from "@/db";
-import { apiSuccess, apiError } from "@/lib/api";
+import { apiSuccess, apiError, getClientIp } from "@/lib/api";
 import { createSession, cleanupExpiredSessions, verifyPassword } from "@/lib/admin";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
 	try {
+		const ip = getClientIp(request);
+		if (!checkRateLimit(`login:${ip}`, 5, 15 * 60 * 1000)) {
+			return apiError("RATE_LIMITED", "Too many login attempts. Try again later.");
+		}
+
 		const body = await request.json();
 		const { password } = body as { password?: string };
 

@@ -10,13 +10,8 @@ export async function createSubscriber(data: {
 }) {
 	const db = await getDb();
 
-	// Get next position
-	const [{ value: maxPosition }] = await db
-		.select({ value: sql<number>`COALESCE(MAX(${subscribers.position}), 0)` })
-		.from(subscribers);
-
-	const position = maxPosition + 1;
-
+	// Atomic position assignment using a subquery to avoid race conditions.
+	// The INSERT + subquery runs as a single statement, preventing duplicate positions.
 	const [subscriber] = await db
 		.insert(subscribers)
 		.values({
@@ -24,7 +19,7 @@ export async function createSubscriber(data: {
 			name: data.name,
 			referralCode: data.referralCode,
 			referredBy: data.referredBy ?? null,
-			position,
+			position: sql`(SELECT COALESCE(MAX(${subscribers.position}), 0) + 1 FROM ${subscribers})`,
 		})
 		.returning();
 

@@ -1,8 +1,11 @@
 import { NextRequest } from "next/server";
+import { getEnv } from "@/db";
 import { siteConfig } from "@/config/site";
-import { apiSuccess, apiError } from "@/lib/api";
+import { apiSuccess, apiError, getClientIp } from "@/lib/api";
+import { verifyTurnstileToken } from "@/lib/turnstile";
 import { recordGiveawayAction, getGiveawayEntryByEmail, isGiveawayEnded } from "@/lib/giveaway";
 import { getPageBySlug } from "@/lib/pages";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 const ALLOWED_ACTIONS = [
 	"twitter_follow",
@@ -12,8 +15,10 @@ const ALLOWED_ACTIONS = [
 	"newsletter_signup",
 ];
 
+const REFERRAL_CODE_PATTERN = /^referral:[a-z0-9]{6,12}$/;
+
 function isValidAction(action: string): boolean {
-	if (action.startsWith("referral:")) return true;
+	if (REFERRAL_CODE_PATTERN.test(action)) return true;
 	return ALLOWED_ACTIONS.includes(action);
 }
 
@@ -22,20 +27,36 @@ export async function POST(request: NextRequest) {
 		return apiError("NOT_FOUND", "Giveaway is not available");
 	}
 
+	const ip = getClientIp(request);
+	if (!checkRateLimit(`giveaway-action:${ip}`, 10, 60 * 1000)) {
+		return apiError("RATE_LIMITED", "Too many requests. Please try again later.");
+	}
+
 	try {
 		const body = await request.json();
-		const { email, action, metadata } = body as {
+		const { email, action, metadata, turnstileToken } = body as {
 			email?: string;
 			action?: string;
 			metadata?: string;
+			turnstileToken?: string;
 		};
 
 		if (!email || !action) {
 			return apiError("VALIDATION_ERROR", "Email and action are required");
 		}
 
+		if (!turnstileToken) {
+			return apiError("VALIDATION_ERROR", "Turnstile token is required");
+		}
+
 		if (!isValidAction(action)) {
 			return apiError("VALIDATION_ERROR", "Unknown action type");
+		}
+
+		const env = await getEnv();
+		const isValid = await verifyTurnstileToken(turnstileToken, env.TURNSTILE_SECRET_KEY);
+		if (!isValid) {
+			return apiError("TURNSTILE_FAILED", "Turnstile verification failed");
 		}
 
 		// Check end date

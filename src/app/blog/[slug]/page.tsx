@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { siteConfig } from "@/config/site";
 import { getPublishedPostBySlug } from "@/lib/blog";
@@ -8,6 +9,7 @@ import { RelatedPosts } from "@/components/blog/related-posts";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { JsonLd } from "@/components/shared/json-ld";
 import { Badge } from "@/components/ui/badge";
+import { isSafeUrl } from "@/lib/utils";
 import type { FAQ } from "@/types/content";
 
 export async function generateMetadata({
@@ -122,11 +124,14 @@ export default async function BlogPostPage({
 					)}
 				</header>
 
-				{post.coverImage && (
-					<img
+				{post.coverImage && isSafeUrl(post.coverImage) && (
+					<Image
 						src={post.coverImage}
 						alt={post.title}
-						className="mt-8 w-full rounded-lg object-cover"
+						width={1200}
+						height={675}
+						className="mt-8 w-full h-auto rounded-lg object-cover"
+						priority
 					/>
 				)}
 

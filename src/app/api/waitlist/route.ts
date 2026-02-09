@@ -1,15 +1,21 @@
 import { NextRequest } from "next/server";
 import { getEnv } from "@/db";
 import { siteConfig } from "@/config/site";
-import { apiSuccess, apiError } from "@/lib/api";
+import { apiSuccess, apiError, getClientIp } from "@/lib/api";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 import { generateReferralCode } from "@/lib/referral";
 import { createSubscriber, getSubscriberByEmail, incrementReferralCount } from "@/lib/waitlist";
 import { enqueueEmail } from "@/lib/queue";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
 	if (!siteConfig.features.waitlist) {
 		return apiError("NOT_FOUND", "Waitlist is not available");
+	}
+
+	const ip = getClientIp(request);
+	if (!checkRateLimit(`waitlist:${ip}`, 5, 60 * 1000)) {
+		return apiError("RATE_LIMITED", "Too many requests. Please try again later.");
 	}
 
 	try {

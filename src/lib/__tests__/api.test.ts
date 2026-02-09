@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { apiSuccess, apiError } from "../api";
+import { apiSuccess, apiError, clampInt } from "../api";
 
 describe("apiSuccess", () => {
 	it("returns JSON with ok: true and data", async () => {
@@ -43,5 +43,32 @@ describe("apiError", () => {
 	it("returns INTERNAL_ERROR with 500 status", async () => {
 		const response = apiError("INTERNAL_ERROR", "oops");
 		expect(response.status).toBe(500);
+	});
+});
+
+describe("clampInt", () => {
+	it("parses a valid number", () => {
+		expect(clampInt("5", 1, 1, 100)).toBe(5);
+	});
+
+	it("returns fallback for null", () => {
+		expect(clampInt(null, 12, 1, 100)).toBe(12);
+	});
+
+	it("returns fallback for NaN", () => {
+		expect(clampInt("abc", 12, 1, 100)).toBe(12);
+	});
+
+	it("clamps to min", () => {
+		expect(clampInt("0", 1, 1, 100)).toBe(1);
+		expect(clampInt("-5", 1, 1, 100)).toBe(1);
+	});
+
+	it("clamps to max", () => {
+		expect(clampInt("999", 1, 1, 100)).toBe(100);
+	});
+
+	it("rounds floats", () => {
+		expect(clampInt("2.7", 1, 1, 100)).toBe(3);
 	});
 });

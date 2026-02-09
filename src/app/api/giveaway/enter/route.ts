@@ -1,16 +1,22 @@
 import { NextRequest } from "next/server";
 import { getEnv } from "@/db";
 import { siteConfig } from "@/config/site";
-import { apiSuccess, apiError } from "@/lib/api";
+import { apiSuccess, apiError, getClientIp } from "@/lib/api";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 import { createGiveawayEntry, getGiveawayEntryByEmail, isGiveawayEnded } from "@/lib/giveaway";
 import { getSubscriberByEmail } from "@/lib/waitlist";
 import { getPageBySlug } from "@/lib/pages";
 import { enqueueEmail } from "@/lib/queue";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
 	if (!siteConfig.features.giveaway) {
 		return apiError("NOT_FOUND", "Giveaway is not available");
+	}
+
+	const ip = getClientIp(request);
+	if (!checkRateLimit(`giveaway-enter:${ip}`, 5, 60 * 1000)) {
+		return apiError("RATE_LIMITED", "Too many requests. Please try again later.");
 	}
 
 	try {

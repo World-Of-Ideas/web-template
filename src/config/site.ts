@@ -19,8 +19,8 @@ export const siteConfig = {
 	},
 
 	// Turnstile site key (public, not a secret)
-	// Using Cloudflare always-pass test key for development
-	turnstileSiteKey: "1x00000000000000000000AA",
+	// Set NEXT_PUBLIC_TURNSTILE_SITE_KEY in production; falls back to always-pass test key for dev
+	turnstileSiteKey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA",
 
 	features: {
 		waitlist: true,

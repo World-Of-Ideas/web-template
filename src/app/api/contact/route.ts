@@ -1,14 +1,20 @@
 import { NextRequest } from "next/server";
 import { getEnv } from "@/db";
 import { siteConfig } from "@/config/site";
-import { apiSuccess, apiError } from "@/lib/api";
+import { apiSuccess, apiError, getClientIp } from "@/lib/api";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 import { createContactSubmission } from "@/lib/contact";
 import { enqueueEmail } from "@/lib/queue";
+import { checkRateLimit } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
 	if (!siteConfig.features.contact) {
 		return apiError("NOT_FOUND", "Contact form is not available");
+	}
+
+	const ip = getClientIp(request);
+	if (!checkRateLimit(`contact:${ip}`, 3, 60 * 1000)) {
+		return apiError("RATE_LIMITED", "Too many requests. Please try again later.");
 	}
 
 	try {

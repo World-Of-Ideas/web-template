@@ -1,12 +1,13 @@
 import Image from "next/image";
 import type { ContentBlock } from "@/types/content";
+import { isSafeUrl } from "@/lib/utils";
 
 interface ImageBlockProps {
 	block: ContentBlock;
 }
 
 export function ImageBlock({ block }: ImageBlockProps) {
-	if (!block.image) return null;
+	if (!block.image || !isSafeUrl(block.image)) return null;
 
 	return (
 		<figure>

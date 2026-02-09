@@ -26,7 +26,7 @@ export default async function AdminLayout({
 	children: React.ReactNode;
 }) {
 	const headerList = await headers();
-	const pathname = headerList.get("x-pathname") ?? headerList.get("x-invoke-path") ?? "";
+	const pathname = headerList.get("x-pathname") ?? "";
 
 	// Determine if we are on the login page
 	// The login page is exactly /admin with no sub-path

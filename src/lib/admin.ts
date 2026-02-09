@@ -43,13 +43,40 @@ export async function cleanupExpiredSessions(): Promise<void> {
 		.where(lt(adminSessions.expiresAt, sql`datetime('now')`));
 }
 
-export async function verifyPassword(password: string, adminPassword: string): Promise<boolean> {
-	// Constant-time comparison to prevent timing attacks
-	if (password.length !== adminPassword.length) return false;
+/**
+ * Derive a key from a password using PBKDF2 with a fixed salt.
+ * PBKDF2 adds computational cost to prevent brute-force attacks,
+ * unlike plain SHA-256 which is too fast for password hashing.
+ */
+async function deriveKey(password: string, salt: ArrayBuffer): Promise<ArrayBuffer> {
 	const encoder = new TextEncoder();
-	const a = encoder.encode(password);
-	const b = encoder.encode(adminPassword);
-	if (a.byteLength !== b.byteLength) return false;
+	const keyMaterial = await crypto.subtle.importKey(
+		"raw",
+		encoder.encode(password),
+		"PBKDF2",
+		false,
+		["deriveBits"],
+	);
+	return crypto.subtle.deriveBits(
+		{ name: "PBKDF2", salt, iterations: 100_000, hash: "SHA-256" },
+		keyMaterial,
+		256,
+	);
+}
+
+export async function verifyPassword(password: string, adminPassword: string): Promise<boolean> {
+	// Use a fixed salt derived from the admin password itself.
+	// This is acceptable because admin password comes from env var (not user-chosen),
+	// and the goal is brute-force resistance, not rainbow table protection.
+	const encoder = new TextEncoder();
+	const salt = await crypto.subtle.digest("SHA-256", encoder.encode("woi-admin-salt:" + adminPassword));
+
+	const [derivedA, derivedB] = await Promise.all([
+		deriveKey(password, salt),
+		deriveKey(adminPassword, salt),
+	]);
+	const a = new Uint8Array(derivedA);
+	const b = new Uint8Array(derivedB);
 	let result = 0;
 	for (let i = 0; i < a.byteLength; i++) {
 		result |= a[i] ^ b[i];
