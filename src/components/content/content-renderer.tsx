@@ -7,6 +7,7 @@ import { CalloutBlock } from "./blocks/callout-block";
 import { QuoteBlock } from "./blocks/quote-block";
 import { TableBlock } from "./blocks/table-block";
 import { CtaBlock } from "./blocks/cta-block";
+import { DownloadBlock } from "./blocks/download-block";
 
 interface ContentRendererProps {
 	blocks: ContentBlock[];
@@ -33,6 +34,8 @@ export function ContentRenderer({ blocks }: ContentRendererProps) {
 						return <TableBlock key={index} block={block} />;
 					case "cta":
 						return <CtaBlock key={index} block={block} />;
+					case "download":
+						return <DownloadBlock key={index} block={block} />;
 					default:
 						return null;
 				}

@@ -13,6 +13,10 @@ export async function generateMetadata(): Promise<Metadata> {
 		openGraph: {
 			title: `Blog | ${siteConfig.name}`,
 			description: `Read the latest articles and updates from ${siteConfig.name}.`,
+			url: `${siteConfig.url}/blog`,
+		},
+		alternates: {
+			canonical: `${siteConfig.url}/blog`,
 		},
 	};
 }

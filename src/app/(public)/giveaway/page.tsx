@@ -18,6 +18,10 @@ export async function generateMetadata(): Promise<Metadata> {
 		openGraph: {
 			title: `Giveaway | ${siteConfig.name}`,
 			description: `Enter the ${siteConfig.name} giveaway for a chance to win.`,
+			url: `${siteConfig.url}/giveaway`,
+		},
+		alternates: {
+			canonical: `${siteConfig.url}/giveaway`,
 		},
 	};
 }

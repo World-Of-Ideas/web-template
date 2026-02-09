@@ -2,6 +2,7 @@ export const siteConfig = {
 	name: "Product Name",
 	description: "One-line value proposition for your product.",
 	url: "https://example.com",
+	author: "Company Name", // Used in meta authors/creator tags
 
 	// Product links — used by CTAs when waitlist is disabled (post-launch)
 	productLinks: {
@@ -32,6 +33,7 @@ export const siteConfig = {
 	name: string;
 	description: string;
 	url: string;
+	author: string;
 	productLinks: { appUrl: string; appStoreUrl: string; playStoreUrl: string };
 	social: { twitter: string; github: string; discord: string; instagram: string };
 	turnstileSiteKey: string;

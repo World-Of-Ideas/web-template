@@ -51,7 +51,7 @@ INSERT OR REPLACE INTO posts (slug, title, description, content, faqs, cover_ima
   NULL, 'Admin', '["launch","announcement","product"]', 1, datetime('now', '-7 days'), datetime('now', '-7 days'), datetime('now', '-7 days')),
 
 ('top-10-tips-for-productivity', 'Top 10 Tips for Productivity', 'Boost your productivity with these simple yet effective tips.',
-  '[{"type":"paragraph","text":"Productivity is not about working harder — it is about working smarter. Here are our top tips."},{"type":"heading","text":"1. Start Your Day with a Plan","level":2},{"type":"paragraph","text":"Spend 10 minutes each morning outlining your top priorities for the day."},{"type":"heading","text":"2. Use the Two-Minute Rule","level":2},{"type":"paragraph","text":"If a task takes less than two minutes, do it immediately instead of adding it to your list."},{"type":"heading","text":"3. Batch Similar Tasks","level":2},{"type":"paragraph","text":"Group related tasks together to minimize context switching."},{"type":"quote","text":"The key is not to prioritize what is on your schedule, but to schedule your priorities."},{"type":"heading","text":"4. Take Regular Breaks","level":2},{"type":"paragraph","text":"Short breaks help maintain focus and prevent burnout. Try the Pomodoro technique."},{"type":"cta","text":"Want more productivity tips? Join our community!"}]',
+  '[{"type":"paragraph","text":"Productivity is not about working harder — it is about working smarter. Here are our top tips."},{"type":"heading","text":"1. Start Your Day with a Plan","level":2},{"type":"paragraph","text":"Spend 10 minutes each morning outlining your top priorities for the day."},{"type":"heading","text":"2. Use the Two-Minute Rule","level":2},{"type":"paragraph","text":"If a task takes less than two minutes, do it immediately instead of adding it to your list."},{"type":"heading","text":"3. Batch Similar Tasks","level":2},{"type":"paragraph","text":"Group related tasks together to minimize context switching."},{"type":"quote","text":"The key is not to prioritize what is on your schedule, but to schedule your priorities."},{"type":"heading","text":"4. Take Regular Breaks","level":2},{"type":"paragraph","text":"Short breaks help maintain focus and prevent burnout. Try the Pomodoro technique."},{"type":"download","downloadUrl":"/uploads/productivity-checklist.pdf","downloadLabel":"Download Productivity Checklist"},{"type":"cta","text":"Want more productivity tips? Join our community!"}]',
   '[{"question":"How often should I take breaks?","answer":"Every 25-50 minutes of focused work, take a 5-10 minute break."}]',
   NULL, 'Admin', '["productivity","tips","workflow"]', 1, datetime('now', '-3 days'), datetime('now', '-3 days'), datetime('now', '-3 days')),
 
@@ -62,9 +62,15 @@ INSERT OR REPLACE INTO posts (slug, title, description, content, faqs, cover_ima
 
 -- ============================================================
 -- Test Subscribers (5 rows)
+-- Clean up first to ensure consistent autoincrement IDs on re-runs
 -- ============================================================
 
-INSERT OR REPLACE INTO subscribers (email, name, referral_code, referred_by, referral_count, position, status, created_at) VALUES
+DELETE FROM giveaway_actions;
+DELETE FROM giveaway_entries;
+DELETE FROM subscribers;
+DELETE FROM sqlite_sequence WHERE name IN ('subscribers', 'giveaway_entries', 'giveaway_actions');
+
+INSERT INTO subscribers (email, name, referral_code, referred_by, referral_count, position, status, created_at) VALUES
 ('alice@example.com', 'Alice Johnson', 'abc123', NULL, 2, 1, 'active', datetime('now', '-10 days')),
 ('bob@example.com', 'Bob Smith', 'def456', 'abc123', 0, 2, 'active', datetime('now', '-9 days')),
 ('carol@example.com', 'Carol Williams', 'ghi789', 'abc123', 1, 3, 'active', datetime('now', '-8 days')),
@@ -75,7 +81,7 @@ INSERT OR REPLACE INTO subscribers (email, name, referral_code, referred_by, ref
 -- Giveaway Entries (2 rows)
 -- ============================================================
 
-INSERT OR REPLACE INTO giveaway_entries (email, subscriber_id, total_entries, created_at) VALUES
+INSERT INTO giveaway_entries (email, subscriber_id, total_entries, created_at) VALUES
 ('alice@example.com', 1, 6, datetime('now', '-5 days')),
 ('bob@example.com', 2, 1, datetime('now', '-4 days'));
 
@@ -83,6 +89,6 @@ INSERT OR REPLACE INTO giveaway_entries (email, subscriber_id, total_entries, cr
 -- Giveaway Actions (for Alice)
 -- ============================================================
 
-INSERT OR REPLACE INTO giveaway_actions (entry_id, action, bonus_entries, metadata, completed_at) VALUES
+INSERT INTO giveaway_actions (entry_id, action, bonus_entries, metadata, completed_at) VALUES
 (1, 'twitter_share', 3, '{"tweetUrl":"https://twitter.com/alice/status/123"}', datetime('now', '-5 days')),
 (1, 'twitter_follow', 2, NULL, datetime('now', '-4 days'));

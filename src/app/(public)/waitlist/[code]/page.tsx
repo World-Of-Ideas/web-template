@@ -8,6 +8,11 @@ export async function generateMetadata(): Promise<Metadata> {
 	return {
 		title: `Your Waitlist Position | ${siteConfig.name}`,
 		description: `Track your waitlist position and share your referral link for ${siteConfig.name}.`,
+		openGraph: {
+			title: `Your Waitlist Position | ${siteConfig.name}`,
+			description: `Track your waitlist position and share your referral link for ${siteConfig.name}.`,
+		},
+		robots: { index: false },
 	};
 }
 

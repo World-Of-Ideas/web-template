@@ -6,7 +6,8 @@ export type ContentBlockType =
 	| "callout"
 	| "quote"
 	| "table"
-	| "cta";
+	| "cta"
+	| "download";
 
 export interface ContentBlock {
 	type: ContentBlockType;
@@ -28,6 +29,9 @@ export interface ContentBlock {
 	// table — headers + rows
 	headers?: string[];
 	rows?: string[][];
+	// download — file URL + button label
+	downloadUrl?: string;
+	downloadLabel?: string;
 }
 
 export interface FAQ {

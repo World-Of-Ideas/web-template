@@ -23,15 +23,24 @@ export async function generateMetadata({
 		return { title: "Page Not Found" };
 	}
 
+	const metadata = page.metadata as Record<string, unknown> | null;
+	const seoTitle = (metadata?.seoTitle as string) || page.title;
+	const noindex = metadata?.noindex as boolean | undefined;
+
 	return {
-		title: page.title,
+		title: seoTitle,
 		description: page.description ?? undefined,
+		...(noindex && { robots: { index: false } }),
 		openGraph: {
-			title: page.title,
+			title: seoTitle,
 			description: page.description ?? undefined,
+			url: `${siteConfig.url}/${fullSlug}`,
 			...(page.coverImage && {
 				images: [{ url: page.coverImage }],
 			}),
+		},
+		alternates: {
+			canonical: `${siteConfig.url}/${fullSlug}`,
 		},
 	};
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getPageBySlug, isSystemPage } from "@/lib/pages";
+import { getPageBySlug, getAllPages, isSystemPage } from "@/lib/pages";
 import { PageEditor } from "@/components/admin/page-editor/page-editor";
 
 export const metadata: Metadata = {
@@ -21,13 +21,24 @@ export default async function EditPagePage({
 	}
 
 	const isSystem = isSystemPage(slug);
+	const allPages = await getAllPages();
+	const parentSlugs = allPages.map((p) => p.slug);
 
 	return (
 		<div className="space-y-6">
 			<h1 className="text-2xl font-bold">
 				Edit {isSystem ? "System " : ""}Page
 			</h1>
-			<PageEditor page={page} isSystem={isSystem} />
+			<PageEditor
+				page={page}
+				isSystem={isSystem}
+				availableParentSlugs={parentSlugs}
+				existingPages={allPages.map((p) => ({
+					slug: p.slug,
+					title: p.title,
+					description: p.description,
+				}))}
+			/>
 		</div>
 	);
 }

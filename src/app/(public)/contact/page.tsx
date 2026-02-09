@@ -17,6 +17,10 @@ export async function generateMetadata(): Promise<Metadata> {
 		openGraph: {
 			title: `Contact | ${siteConfig.name}`,
 			description: `Get in touch with the ${siteConfig.name} team.`,
+			url: `${siteConfig.url}/contact`,
+		},
+		alternates: {
+			canonical: `${siteConfig.url}/contact`,
 		},
 	};
 }

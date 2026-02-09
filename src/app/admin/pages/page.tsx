@@ -16,11 +16,55 @@ export const metadata: Metadata = {
 	title: "Pages | Admin",
 };
 
+interface PageRow {
+	slug: string;
+	parentSlug: string | null;
+	title: string;
+	description: string | null;
+	published: boolean;
+	depth: number;
+}
+
+function buildTree(
+	pages: { slug: string; parentSlug: string | null; title: string; description: string | null; published: boolean }[],
+): PageRow[] {
+	const childrenMap = new Map<string | null, typeof pages>();
+	for (const page of pages) {
+		const key = page.parentSlug ?? null;
+		if (!childrenMap.has(key)) childrenMap.set(key, []);
+		childrenMap.get(key)!.push(page);
+	}
+
+	const result: PageRow[] = [];
+
+	function walk(parentSlug: string | null, depth: number) {
+		const children = childrenMap.get(parentSlug) ?? [];
+		for (const child of children) {
+			result.push({ ...child, depth });
+			walk(child.slug, depth + 1);
+		}
+	}
+
+	walk(null, 0);
+
+	// Append any orphans (parentSlug points to a non-existent page)
+	const placed = new Set(result.map((r) => r.slug));
+	for (const page of pages) {
+		if (!placed.has(page.slug)) {
+			result.push({ ...page, depth: 0 });
+		}
+	}
+
+	return result;
+}
+
 export default async function PagesPage() {
 	const allPages = await getAllPages();
 
 	const systemPages = allPages.filter((p) => isSystemPage(p.slug));
-	const contentPages = allPages.filter((p) => !isSystemPage(p.slug));
+	const contentPages = buildTree(
+		allPages.filter((p) => !isSystemPage(p.slug)),
+	);
 
 	return (
 		<div className="space-y-8">
@@ -94,9 +138,10 @@ export default async function PagesPage() {
 									<TableCell>
 										<Link
 											href={`/admin/pages/${page.slug}/edit`}
-											className={`font-medium hover:underline ${page.parentSlug ? "ml-6" : ""}`}
+											className="font-medium hover:underline"
+											style={{ paddingLeft: `${page.depth * 1.5}rem` }}
 										>
-											{page.parentSlug ? "└ " : ""}
+											{page.depth > 0 ? "└ " : ""}
 											{page.title}
 										</Link>
 									</TableCell>

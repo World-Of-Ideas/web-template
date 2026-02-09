@@ -1,8 +1,12 @@
 import Link from "next/link";
 import { siteConfig } from "@/config/site";
 import { footerGroups } from "@/config/navigation";
+import { getPublishedContentPages, isSystemPage } from "@/lib/pages";
 
-export function Footer() {
+export async function Footer() {
+	const contentPages = (await getPublishedContentPages()).filter(
+		(p) => !isSystemPage(p.slug),
+	);
 	return (
 		<footer className="border-t">
 			<div className="container mx-auto px-4 py-12">
@@ -64,6 +68,24 @@ export function Footer() {
 							</div>
 						);
 					})}
+
+					{contentPages.length > 0 && (
+						<div>
+							<h3 className="mb-3 text-sm font-semibold">Pages</h3>
+							<ul className="space-y-2">
+								{contentPages.map((page) => (
+									<li key={page.slug}>
+										<Link
+											href={`/${page.slug}`}
+											className="text-sm text-muted-foreground hover:text-foreground"
+										>
+											{page.title}
+										</Link>
+									</li>
+								))}
+							</ul>
+						</div>
+					)}
 				</div>
 
 				<div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">

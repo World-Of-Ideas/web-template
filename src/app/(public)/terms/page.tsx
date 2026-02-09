@@ -8,6 +8,14 @@ export async function generateMetadata(): Promise<Metadata> {
 	return {
 		title: `Terms of Use | ${siteConfig.name}`,
 		description: `Terms of use for ${siteConfig.name}.`,
+		openGraph: {
+			title: `Terms of Use | ${siteConfig.name}`,
+			description: `Terms of use for ${siteConfig.name}.`,
+			url: `${siteConfig.url}/terms`,
+		},
+		alternates: {
+			canonical: `${siteConfig.url}/terms`,
+		},
 	};
 }
 

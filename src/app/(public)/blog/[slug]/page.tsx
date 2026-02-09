@@ -25,18 +25,26 @@ export async function generateMetadata({
 		return { title: "Post Not Found" };
 	}
 
+	const tags = (post.tags ?? []) as string[];
+
 	return {
 		title: post.title,
 		description: post.description,
+		...(tags.length > 0 && { keywords: tags }),
 		openGraph: {
 			title: post.title,
 			description: post.description,
 			type: "article",
+			url: `${siteConfig.url}/blog/${slug}`,
 			publishedTime: post.publishedAt ?? undefined,
+			modifiedTime: post.updatedAt ?? undefined,
 			authors: [post.author],
 			...(post.coverImage && {
 				images: [{ url: post.coverImage }],
 			}),
+		},
+		alternates: {
+			canonical: `${siteConfig.url}/blog/${slug}`,
 		},
 	};
 }

@@ -19,7 +19,12 @@ export const metadata: Metadata = {
 	openGraph: {
 		title: siteConfig.name,
 		description: siteConfig.description,
+		type: "website",
 		url: siteConfig.url,
+		images: [{ url: "/og-default.png", width: 1200, height: 630 }],
+	},
+	alternates: {
+		canonical: siteConfig.url,
 	},
 };
 
@@ -107,37 +112,14 @@ export default async function HomePage() {
 				</div>
 			</section>
 
-			{/* Features Section */}
-			<section className="px-6 py-16">
-				<div className="mx-auto max-w-5xl">
-					<h2 className="text-center text-3xl font-bold tracking-tight">
-						Why Choose {siteConfig.name}
-					</h2>
-					<div className="mt-12 grid gap-8 md:grid-cols-3">
-						<div className="rounded-lg border p-6">
-							<h3 className="text-lg font-semibold">Feature One</h3>
-							<p className="mt-2 text-sm text-muted-foreground">
-								A brief description of the first key feature and the value it
-								provides to users.
-							</p>
-						</div>
-						<div className="rounded-lg border p-6">
-							<h3 className="text-lg font-semibold">Feature Two</h3>
-							<p className="mt-2 text-sm text-muted-foreground">
-								A brief description of the second key feature and the value it
-								provides to users.
-							</p>
-						</div>
-						<div className="rounded-lg border p-6">
-							<h3 className="text-lg font-semibold">Feature Three</h3>
-							<p className="mt-2 text-sm text-muted-foreground">
-								A brief description of the third key feature and the value it
-								provides to users.
-							</p>
-						</div>
+			{/* Page Content (editable via admin) */}
+			{homePage?.content && homePage.content.length > 0 && (
+				<section className="px-6 py-16">
+					<div className="mx-auto max-w-3xl">
+						<ContentRenderer blocks={homePage.content} />
 					</div>
-				</div>
-			</section>
+				</section>
+			)}
 
 			{/* Subscriber Count */}
 			{siteConfig.features.waitlist && (

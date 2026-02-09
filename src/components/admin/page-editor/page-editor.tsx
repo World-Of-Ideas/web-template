@@ -34,13 +34,20 @@ interface PageData {
 	sortOrder: number;
 }
 
+export interface ExistingPageInfo {
+	slug: string;
+	title: string;
+	description: string | null;
+}
+
 interface PageEditorProps {
 	page?: PageData;
 	isSystem?: boolean;
 	availableParentSlugs?: string[];
+	existingPages?: ExistingPageInfo[];
 }
 
-export function PageEditor({ page, isSystem, availableParentSlugs = [] }: PageEditorProps) {
+export function PageEditor({ page, isSystem, availableParentSlugs = [], existingPages = [] }: PageEditorProps) {
 	const router = useRouter();
 	const isEditMode = !!page;
 
@@ -58,9 +65,18 @@ export function PageEditor({ page, isSystem, availableParentSlugs = [] }: PageEd
 	const [relatedPages, setRelatedPages] = useState<RelatedPage[]>(
 		page?.relatedPages ?? [],
 	);
-	const [metadataJson, setMetadataJson] = useState(
-		page?.metadata ? JSON.stringify(page.metadata, null, 2) : "{}",
+	const [seoTitle, setSeoTitle] = useState(
+		(page?.metadata?.seoTitle as string) ?? "",
 	);
+	const [noindex, setNoindex] = useState(
+		(page?.metadata?.noindex as boolean) ?? false,
+	);
+	const [metadataJson, setMetadataJson] = useState(() => {
+		if (!page?.metadata) return "{}";
+		// Strip SEO fields from raw JSON — they're managed by dedicated inputs
+		const { seoTitle: _s, noindex: _n, ...rest } = page.metadata;
+		return JSON.stringify(rest, null, 2);
+	});
 	const [isSaving, setIsSaving] = useState(false);
 	const [error, setError] = useState("");
 
@@ -69,16 +85,23 @@ export function PageEditor({ page, isSystem, availableParentSlugs = [] }: PageEd
 		setError("");
 		setIsSaving(true);
 
-		let metadata: Record<string, unknown> | null = null;
+		let baseMetadata: Record<string, unknown> = {};
 		if (isSystem) {
 			try {
-				metadata = JSON.parse(metadataJson);
+				baseMetadata = JSON.parse(metadataJson);
 			} catch {
 				setError("Invalid JSON in metadata field.");
 				setIsSaving(false);
 				return;
 			}
 		}
+
+		// Merge SEO fields into metadata
+		const metadata: Record<string, unknown> = {
+			...baseMetadata,
+			...(seoTitle ? { seoTitle } : {}),
+			...(noindex ? { noindex } : {}),
+		};
 
 		const body = {
 			title,
@@ -211,6 +234,39 @@ export function PageEditor({ page, isSystem, availableParentSlugs = [] }: PageEd
 				<Label>Published</Label>
 			</div>
 
+			{/* SEO Settings */}
+			<fieldset className="space-y-4 rounded-lg border p-4">
+				<legend className="px-2 text-sm font-medium">SEO Settings</legend>
+
+				<div className="space-y-2">
+					<Label htmlFor="page-seo-title">SEO Title (optional override)</Label>
+					<Input
+						id="page-seo-title"
+						value={seoTitle}
+						onChange={(e) => setSeoTitle(e.target.value)}
+						placeholder="Leave empty to use page title"
+						disabled={isSaving}
+					/>
+					<p className="text-xs text-muted-foreground">
+						Overrides the page title in search results and social sharing.
+					</p>
+				</div>
+
+				<div className="flex items-center gap-3">
+					<Switch
+						checked={noindex}
+						onCheckedChange={setNoindex}
+						disabled={isSaving}
+					/>
+					<div>
+						<Label>Hide from search engines</Label>
+						<p className="text-xs text-muted-foreground">
+							Adds noindex — page won&apos;t appear in Google results.
+						</p>
+					</div>
+				</div>
+			</fieldset>
+
 			<div className="space-y-2">
 				<Label>Content Blocks</Label>
 				<BlockList blocks={content} onChange={setContent} />
@@ -223,7 +279,11 @@ export function PageEditor({ page, isSystem, availableParentSlugs = [] }: PageEd
 
 			<div className="space-y-2">
 				<Label>Related Pages</Label>
-				<RelatedPagesEditor pages={relatedPages} onChange={setRelatedPages} />
+				<RelatedPagesEditor
+					pages={relatedPages}
+					onChange={setRelatedPages}
+					existingPages={existingPages.filter((p) => p.slug !== slug)}
+				/>
 			</div>
 
 			{isSystem && (

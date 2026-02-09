@@ -9,6 +9,7 @@ import { CalloutEditor } from "./callout-editor";
 import { QuoteEditor } from "./quote-editor";
 import { TableEditor } from "./table-editor";
 import { CtaEditor } from "./cta-editor";
+import { DownloadEditor } from "./download-editor";
 
 interface BlockEditorProps {
 	block: ContentBlock;
@@ -33,6 +34,8 @@ export function BlockEditor({ block, onChange }: BlockEditorProps) {
 			return <TableEditor block={block} onChange={onChange} />;
 		case "cta":
 			return <CtaEditor block={block} onChange={onChange} />;
+		case "download":
+			return <DownloadEditor block={block} onChange={onChange} />;
 		default:
 			return (
 				<p className="text-sm text-muted-foreground">

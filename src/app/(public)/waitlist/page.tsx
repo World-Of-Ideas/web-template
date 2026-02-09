@@ -17,6 +17,10 @@ export async function generateMetadata(): Promise<Metadata> {
 		openGraph: {
 			title: `Join the Waitlist | ${siteConfig.name}`,
 			description: `Sign up for early access to ${siteConfig.name}.`,
+			url: `${siteConfig.url}/waitlist`,
+		},
+		alternates: {
+			canonical: `${siteConfig.url}/waitlist`,
 		},
 	};
 }

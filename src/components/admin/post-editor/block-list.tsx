@@ -25,6 +25,7 @@ const BLOCK_TYPES: { type: ContentBlockType; label: string }[] = [
 	{ type: "quote", label: "Quote" },
 	{ type: "table", label: "Table" },
 	{ type: "cta", label: "CTA" },
+	{ type: "download", label: "Download" },
 ];
 
 function getDefaultBlock(type: ContentBlockType): ContentBlock {
@@ -45,6 +46,8 @@ function getDefaultBlock(type: ContentBlockType): ContentBlock {
 			return { type: "table", headers: ["Column 1"], rows: [[""] ] };
 		case "cta":
 			return { type: "cta", text: "" };
+		case "download":
+			return { type: "download", downloadUrl: "", downloadLabel: "" };
 	}
 }
 
