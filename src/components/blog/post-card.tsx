@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { normalizeImageSrc } from "@/lib/r2";
 
 interface PostCardProps {
 	post: {
@@ -29,7 +30,7 @@ export function PostCard({ post }: PostCardProps) {
 				{post.coverImage && (
 					<div className="relative aspect-[16/9] overflow-hidden">
 						<Image
-							src={post.coverImage}
+							src={normalizeImageSrc(post.coverImage)}
 							alt={post.title}
 							fill
 							className="object-cover transition-transform group-hover:scale-105"

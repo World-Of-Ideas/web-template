@@ -8,7 +8,7 @@ import { checkRateLimit } from "@/lib/rate-limit";
 export async function POST(request: NextRequest) {
 	try {
 		const ip = getClientIp(request);
-		if (!checkRateLimit(`login:${ip}`, 5, 15 * 60 * 1000)) {
+		if (!checkRateLimit(`login:${ip}`, 20, 15 * 60 * 1000)) {
 			return apiError("RATE_LIMITED", "Too many login attempts. Try again later.");
 		}
 
@@ -34,9 +34,9 @@ export async function POST(request: NextRequest) {
 		const cookieStore = await cookies();
 		cookieStore.set("admin_session", sessionId, {
 			httpOnly: true,
-			secure: true,
+			secure: process.env.NODE_ENV === "production",
 			sameSite: "strict",
-			path: "/admin",
+			path: "/",
 			maxAge: 60 * 60 * 24, // 24 hours
 		});
 

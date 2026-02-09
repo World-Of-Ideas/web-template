@@ -26,6 +26,18 @@ export function getPublicUrl(r2PublicUrl: string, key: string): string {
 	return `${r2PublicUrl}/${key}`;
 }
 
+/** Strip localhost origin from image URLs so next/image treats them as local paths */
+export function normalizeImageSrc(url: string): string {
+	if (url.startsWith("http://localhost")) {
+		try {
+			return new URL(url).pathname;
+		} catch {
+			return url;
+		}
+	}
+	return url;
+}
+
 export async function deleteFromR2(bucket: R2Bucket, key: string): Promise<void> {
 	await bucket.delete(key);
 }

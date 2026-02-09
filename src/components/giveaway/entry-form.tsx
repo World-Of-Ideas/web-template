@@ -45,25 +45,23 @@ export function EntryForm() {
 			});
 
 			const data = (await res.json()) as {
-				error?: string;
-				code?: string;
-				entryId?: number;
-				completedActions?: string[];
+				error?: { code: string; message: string };
+				data?: { entryId: number; totalEntries: number; existing?: boolean };
 			};
 
 			if (!res.ok) {
-				if (data.code === "GIVEAWAY_ENDED") {
+				if (data.error?.code === "GIVEAWAY_ENDED") {
 					setError("This giveaway has ended. Thanks for your interest!");
 				} else {
-					setError(data.error ?? "Something went wrong. Please try again.");
+					setError(data.error?.message ?? "Something went wrong. Please try again.");
 				}
 				return;
 			}
 
 			setEntry({
-				entryId: data.entryId!,
+				entryId: data.data!.entryId,
 				email,
-				completedActions: data.completedActions ?? [],
+				completedActions: [],
 			});
 		} catch {
 			setError("Something went wrong. Please try again.");

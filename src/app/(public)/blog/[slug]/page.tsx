@@ -10,6 +10,7 @@ import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { JsonLd } from "@/components/shared/json-ld";
 import { Badge } from "@/components/ui/badge";
 import { isSafeUrl } from "@/lib/utils";
+import { normalizeImageSrc } from "@/lib/r2";
 import type { FAQ } from "@/types/content";
 
 export async function generateMetadata({
@@ -126,7 +127,7 @@ export default async function BlogPostPage({
 
 				{post.coverImage && isSafeUrl(post.coverImage) && (
 					<Image
-						src={post.coverImage}
+						src={normalizeImageSrc(post.coverImage)}
 						alt={post.title}
 						width={1200}
 						height={675}

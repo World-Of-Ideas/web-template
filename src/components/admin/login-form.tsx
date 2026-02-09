@@ -24,10 +24,10 @@ export function LoginForm() {
 				body: JSON.stringify({ password }),
 			});
 
-			const data = (await res.json()) as { error?: string };
+			const data = (await res.json()) as { error?: { code: string; message: string } };
 
 			if (!res.ok) {
-				setError(data.error ?? "Incorrect password.");
+				setError(data.error?.message ?? "Incorrect password.");
 				return;
 			}
 

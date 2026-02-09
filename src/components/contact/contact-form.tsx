@@ -34,10 +34,10 @@ export function ContactForm() {
 				body: JSON.stringify({ name, email, message, turnstileToken }),
 			});
 
-			const data = (await res.json()) as { error?: string };
+			const data = (await res.json()) as { error?: { code: string; message: string } };
 
 			if (!res.ok) {
-				setError(data.error ?? "Something went wrong. Please try again.");
+				setError(data.error?.message ?? "Something went wrong. Please try again.");
 				return;
 			}
 

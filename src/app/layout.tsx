@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { siteConfig } from "@/config/site";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
-import { SearchDialog } from "@/components/shared/search-dialog";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -17,6 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+	metadataBase: new URL(siteConfig.url),
 	title: {
 		default: siteConfig.name,
 		template: `%s | ${siteConfig.name}`,
@@ -50,10 +48,7 @@ export default function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
-				<Header />
-				<main className="min-h-[calc(100vh-3.5rem)]">{children}</main>
-				<Footer />
-				<SearchDialog />
+				{children}
 			</body>
 		</html>
 	);

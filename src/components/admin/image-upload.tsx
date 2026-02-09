@@ -47,15 +47,15 @@ export function ImageUpload({ value, onChange, path }: ImageUploadProps) {
 				body: formData,
 			});
 
-			const data = (await res.json()) as { url?: string; error?: string };
+			const data = (await res.json()) as { data?: { url: string }; error?: { code: string; message: string } };
 
 			if (!res.ok) {
-				setError(data.error ?? "Upload failed. Please try again.");
+				setError(data.error?.message ?? "Upload failed. Please try again.");
 				return;
 			}
 
-			if (data.url) {
-				onChange(data.url);
+			if (data.data?.url) {
+				onChange(data.data.url);
 			}
 		} catch {
 			setError("Upload failed. Please try again.");

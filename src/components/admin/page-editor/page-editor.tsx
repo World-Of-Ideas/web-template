@@ -106,10 +106,10 @@ export function PageEditor({ page, isSystem, availableParentSlugs = [] }: PageEd
 				body: JSON.stringify(body),
 			});
 
-			const data = (await res.json()) as { error?: string };
+			const data = (await res.json()) as { error?: { code: string; message: string } };
 
 			if (!res.ok) {
-				setError(data.error ?? "Failed to save page.");
+				setError(data.error?.message ?? "Failed to save page.");
 				return;
 			}
 

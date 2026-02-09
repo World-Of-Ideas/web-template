@@ -37,14 +37,14 @@ export function SignupForm({ referralCode }: SignupFormProps) {
 				body: JSON.stringify({ email, name, turnstileToken, ref: referralCode }),
 			});
 
-			const data = (await res.json()) as { error?: string; referralCode?: string };
+			const data = (await res.json()) as { error?: { code: string; message: string }; data?: { referralCode: string } };
 
 			if (!res.ok) {
-				setError(data.error ?? "Something went wrong. Please try again.");
+				setError(data.error?.message ?? "Something went wrong. Please try again.");
 				return;
 			}
 
-			router.push(`/waitlist/${data.referralCode}`);
+			router.push(`/waitlist/${data.data?.referralCode}`);
 		} catch {
 			setError("Something went wrong. Please try again.");
 		} finally {
