@@ -231,7 +231,8 @@ describe("queue-consumer", () => {
 	// --- Unknown email types ---
 
 	describe("unknown email types", () => {
-		it("acks unknown job types without sending email", async () => {
+		it("retries unknown job types without sending email", async () => {
+			const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 			const message = createMockMessage({
 				type: "unknown_type",
 				payload: {},
@@ -242,6 +243,9 @@ describe("queue-consumer", () => {
 
 			expect(sendEmail).not.toHaveBeenCalled();
 			expect(message.retry).toHaveBeenCalled();
+			// Verify generic log message without leaking the type value
+			expect(consoleSpy).toHaveBeenCalledWith("Unknown email job type encountered");
+			consoleSpy.mockRestore();
 		});
 	});
 

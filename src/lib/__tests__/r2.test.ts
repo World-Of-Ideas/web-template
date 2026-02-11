@@ -85,9 +85,27 @@ describe("validateMagicBytes", () => {
 	});
 
 	it("returns true for valid WebP magic bytes with image/webp type", () => {
-		// WebP starts with RIFF header: [0x52, 0x49, 0x46, 0x46]
+		// WebP: RIFF header (bytes 0-3) + file size (4-7) + "WEBP" (bytes 8-11)
 		const buffer = new Uint8Array([0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x57, 0x45, 0x42, 0x50]).buffer;
 		expect(validateMagicBytes(buffer, "image/webp")).toBe(true);
+	});
+
+	it("returns false for WAV file claiming to be WebP (RIFF but not WEBP at 8-11)", () => {
+		// WAV: RIFF header + "WAVE" at bytes 8-11
+		const buffer = new Uint8Array([0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x57, 0x41, 0x56, 0x45]).buffer;
+		expect(validateMagicBytes(buffer, "image/webp")).toBe(false);
+	});
+
+	it("returns false for AVI file claiming to be WebP (RIFF but not WEBP at 8-11)", () => {
+		// AVI: RIFF header + "AVI " at bytes 8-11
+		const buffer = new Uint8Array([0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00, 0x41, 0x56, 0x49, 0x20]).buffer;
+		expect(validateMagicBytes(buffer, "image/webp")).toBe(false);
+	});
+
+	it("returns false for truncated RIFF file claiming to be WebP (< 12 bytes)", () => {
+		// Only 8 bytes: RIFF header + some size bytes, missing WEBP signature
+		const buffer = new Uint8Array([0x52, 0x49, 0x46, 0x46, 0x00, 0x00, 0x00, 0x00]).buffer;
+		expect(validateMagicBytes(buffer, "image/webp")).toBe(false);
 	});
 
 	it("returns false for mismatched MIME type and magic bytes", () => {

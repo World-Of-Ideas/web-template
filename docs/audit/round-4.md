@@ -17,22 +17,49 @@
 | Info | 3 | 1 | 2 |
 | **Total** | **45** | **42** | **3** |
 
+**Self-inflicted from Round 3: 3** (M11, L15 were fixing bad R3 fixes; M12 was testing R3's incomplete delivery)
+
 Also identified: 1 dead file (`src/proxy.ts`) — already deleted during this audit.
 
 ---
 
-## High Severity
+## Self-inflicted Regressions from Round 3
+
+These findings exist only because Round 3 fixes were wrong or incomplete:
+
+### M11 — Cookie consent banner uses `role="dialog"` without focus trap [FIXED — R3 regression]
+
+**File:** `src/components/shared/cookie-consent-banner.tsx`
+**Issue:** R3 L12 added `role="dialog"`, but `role="dialog"` requires focus trapping per WAI-ARIA. The banner doesn't trap focus, so R3's fix introduced a new a11y violation.
+**Resolution:** Changed to `role="region"` with `aria-label="Cookie consent"`.
+
+### M12 — `validateMagicBytes` has no test coverage [FIXED — R3 incomplete delivery]
+
+**File:** `src/lib/__tests__/r2.test.ts`
+**Issue:** R3 added magic byte validation but shipped it without any tests. The implementation was also incomplete (RIFF-only check for WebP — caught later in R5 M1).
+**Resolution:** Added 7+ test cases covering PNG, JPEG, GIF, WebP, mismatched types, and short buffers. However, tests only covered the happy path and didn't test WAV/AVI bypass, which is why R5 M1 was still needed.
+
+### L15 — Image block alt fallback says "Blog image" on non-blog pages [FIXED — R3 regression]
+
+**File:** `src/components/content/blocks/image-block.tsx`
+**Issue:** R3 L5 changed `alt=""` to `"Blog image"` as a fallback, but content pages also use image blocks. The fallback was misleading.
+**Resolution:** Changed to `alt=""` (decorative) when no alt text provided. Net effect: two rounds to arrive at nearly the same code as the original.
+
+---
+
+## Genuine Findings
+
+### High Severity
 
 ### H1 — `createSubscriberWithReferral` has zero test coverage [FIXED]
 
 **File:** `src/lib/waitlist.ts` (lines 32–60)
 **Issue:** The atomic referral signup function (uses `db.batch()` to create subscriber + increment referrer count) has no test coverage at all. It's a critical code path for referral-based signups.
-**Impact:** A bug could silently fail to increment referral counts or produce incorrect subscriber records with no test to catch it.
 **Resolution:** Added integration tests in `waitlist.integration.test.ts` covering subscriber creation with referral and referral count incrementing.
 
 ---
 
-## Medium Severity
+### Medium Severity
 
 ### M1 — Page titles doubled: `"Blog | Product Name | Product Name"` [FIXED]
 
@@ -94,18 +121,6 @@ Also identified: 1 dead file (`src/proxy.ts`) — already deleted during this au
 **Issue:** Search button hidden on mobile with no alternative.
 **Resolution:** Added search trigger button inside the mobile navigation sheet.
 
-### M11 — Cookie consent banner uses `role="dialog"` without focus trap [FIXED]
-
-**File:** `src/components/shared/cookie-consent-banner.tsx`
-**Issue:** `role="dialog"` requires focus trapping per WAI-ARIA. The banner doesn't trap focus.
-**Resolution:** Changed to `role="region"` with `aria-label="Cookie consent"`.
-
-### M12 — `validateMagicBytes` has no test coverage [FIXED]
-
-**File:** `src/lib/__tests__/r2.test.ts`
-**Issue:** The magic byte validation had zero tests.
-**Resolution:** Added 7+ test cases covering PNG, JPEG, GIF, WebP, mismatched types, and short buffers.
-
 ### M13 — `deletePost` return value untested [FIXED]
 
 **File:** `src/lib/__tests__/blog.integration.test.ts`
@@ -132,7 +147,7 @@ Also identified: 1 dead file (`src/proxy.ts`) — already deleted during this au
 
 ---
 
-## Low Severity
+### Low Severity
 
 ### L1 — No rate limiting on public blog/referral GET endpoints [DEFERRED]
 
@@ -152,11 +167,12 @@ Also identified: 1 dead file (`src/proxy.ts`) — already deleted during this au
 **Issue:** Login sets cookies on `/admin` and `/api/admin` paths. Logout may only clear one.
 **Resolution:** Now explicitly deletes cookies for both paths.
 
-### L4 — Unknown queue job types silently ACKed (skip DLQ) [FIXED]
+### L4 — Unknown queue job types silently ACKed (skip DLQ) [FIXED — but introduced R5 L4 regression]
 
 **File:** `src/lib/queue-consumer.ts`
 **Issue:** Unrecognized `job.type` values fall through to `message.ack()`, silently discarding them.
 **Resolution:** Added `default` case that calls `message.retry()` with error logging.
+**Post-mortem:** The error log included the raw type value (`Unknown email job type: ${type}`), which is a log injection vector. R5 L4 had to fix this to a generic message.
 
 ### L5 — CSP `frame-src` missing GTM noscript iframe domain [FIXED]
 
@@ -217,12 +233,6 @@ Also identified: 1 dead file (`src/proxy.ts`) — already deleted during this au
 **File:** `src/components/content/blocks/cta-block.tsx`
 **Issue:** External product links use Next.js `<Link>` instead of `<a>`.
 **Resolution:** Changed to `<a>` elements with `target="_blank"` and `rel="noopener noreferrer"`.
-
-### L15 — Image block alt fallback says "Blog image" on non-blog pages [FIXED]
-
-**File:** `src/components/content/blocks/image-block.tsx`
-**Issue:** Generic fallback `"Blog image"` is misleading on content pages.
-**Resolution:** Changed to `alt=""` (decorative) when no alt text provided.
 
 ### L16 — Blog post cover image alt duplicates h1 title [FIXED]
 
@@ -310,25 +320,6 @@ Also identified: 1 dead file (`src/proxy.ts`) — already deleted during this au
 - **L1 — GET endpoint rate limiting:** Requires infrastructure-level solution (Cloudflare WAF). Pagination caps limit per-request cost.
 - **I1 — CIDR in allowedDevOrigins:** Info only, needs verification at deploy time.
 - **I3 — parentSlug FK constraint:** App-level cleanup is sufficient; D1 FK enforcement adds complexity.
-- **Playwright cross-browser (Firefox/WebKit):** Requires additional browser installs. Noted for future CI setup.
-- **No E2E for public forms (waitlist/contact/giveaway):** Turnstile complicates E2E testing. Noted for future improvement with always-pass test keys.
-- **No E2E for search (Cmd+K):** Low priority; unit tests cover the API.
-
----
-
-## Patterns Addressed
-
-### 1. Title Template Duplication (M1, M2)
-All 8 public pages manually appended `| ${siteConfig.name}` to titles while the root layout template already does this. Removed all manual suffixes; home page uses `title.absolute`.
-
-### 2. Missing Accessibility on Loading States (L10, L11)
-Blog and admin loading skeletons now include `role="status"` and sr-only text, matching the public loading page.
-
-### 3. Label Association Gaps (L12, L18, L19, L20)
-All interactive elements (consent switch, mobile nav, admin nav, file input) now have proper ARIA labels or label associations.
-
-### 4. Decorative Image Alt Duplication (L15, L16, L17)
-Cover images that duplicate adjacent headings now use `alt=""` (decorative) to prevent screen reader repetition.
 
 ---
 
@@ -343,10 +334,12 @@ Cover images that duplicate adjacent headings now use `alt=""` (decorative) to p
 
 ## Cumulative Audit History
 
-| Round | Findings | Fixed | Deferred |
-|-------|----------|-------|----------|
-| 1 | 31 | 31 | 0 |
-| 2 | 49 | 49 | 0 |
-| 3 | 37 | 37 | 0 |
-| 4 | 45 | 42 | 3 |
-| **Total** | **162** | **159** | **3** |
+| Round | Findings | Fixed | Deferred | Self-inflicted |
+|-------|----------|-------|----------|----------------|
+| 1 | 31 | 31 | 0 | — |
+| 2 | 49 | 49 | 0 | — |
+| 3 | 37 | 37 | 0 | — |
+| 4 | 45 | 42 | 3 | 3 (from R3) |
+| **Total** | **162** | **159** | **3** | **3** |
+
+Genuine new findings in Round 4: **42** (45 total minus 3 self-inflicted)

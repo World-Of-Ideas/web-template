@@ -1,9 +1,15 @@
 import { NextRequest } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
-import { apiSuccess, apiError } from "@/lib/api";
+import { apiSuccess, apiError, getClientIp } from "@/lib/api";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { getSubscriberByEmail, unsubscribe, verifyUnsubscribeToken } from "@/lib/waitlist";
 
 export async function GET(request: NextRequest) {
+	const ip = getClientIp(request);
+	if (!checkRateLimit(`unsubscribe:${ip}`, 10, 60_000)) {
+		return apiError("RATE_LIMITED", "Too many requests. Please try again later.");
+	}
+
 	const email = request.nextUrl.searchParams.get("email");
 	const token = request.nextUrl.searchParams.get("token");
 

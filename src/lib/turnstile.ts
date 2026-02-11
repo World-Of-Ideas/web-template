@@ -2,7 +2,7 @@ const VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify";
 
 export async function verifyTurnstileToken(token: string, secretKey: string): Promise<boolean> {
 	try {
-		if (!token || token.length > 2048) return false;
+		if (!token || token.trim().length < 20 || token.length > 2048) return false;
 
 		const response = await fetch(VERIFY_URL, {
 			method: "POST",

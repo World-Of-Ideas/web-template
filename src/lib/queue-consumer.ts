@@ -87,7 +87,7 @@ export async function handleEmailQueue(
 				}
 
 				default:
-					console.error(`Unknown email job type: ${(job as { type: string }).type}`);
+					console.error("Unknown email job type encountered");
 					message.retry();
 					continue;
 			}

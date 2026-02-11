@@ -6,7 +6,7 @@ const MAGIC_BYTES: [string, number[]][] = [
 	["image/png", [0x89, 0x50, 0x4e, 0x47]],
 	["image/jpeg", [0xff, 0xd8, 0xff]],
 	["image/gif", [0x47, 0x49, 0x46, 0x38]],
-	["image/webp", [0x52, 0x49, 0x46, 0x46]], // RIFF header (WebP starts with RIFF)
+	["image/webp", [0x52, 0x49, 0x46, 0x46]], // RIFF header (first 4 bytes; "WEBP" at 8-11 checked separately)
 ];
 
 export function validateUpload(file: File): string | null {
@@ -26,7 +26,14 @@ export function validateMagicBytes(buffer: ArrayBuffer, claimedType: string): bo
 
 	for (const [mimeType, signature] of MAGIC_BYTES) {
 		if (claimedType === mimeType) {
-			return signature.every((byte, i) => bytes[i] === byte);
+			const primaryMatch = signature.every((byte, i) => bytes[i] === byte);
+			if (!primaryMatch) return false;
+			// WebP: additionally verify "WEBP" at bytes 8-11
+			if (mimeType === "image/webp") {
+				if (bytes.length < 12) return false;
+				return bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50;
+			}
+			return true;
 		}
 	}
 	return false;

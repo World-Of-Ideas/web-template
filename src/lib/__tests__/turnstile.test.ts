@@ -18,7 +18,7 @@ describe("verifyTurnstileToken", () => {
 			json: () => Promise.resolve({ success: true, challenge_ts: new Date().toISOString() }),
 		});
 
-		const result = await verifyTurnstileToken("valid-token", "secret");
+		const result = await verifyTurnstileToken("valid-token-abcdefghijk", "secret");
 		expect(result).toBe(true);
 	});
 
@@ -28,7 +28,7 @@ describe("verifyTurnstileToken", () => {
 			json: () => Promise.resolve({ success: false }),
 		});
 
-		const result = await verifyTurnstileToken("invalid-token", "secret");
+		const result = await verifyTurnstileToken("invalid-token-abcdefgh", "secret");
 		expect(result).toBe(false);
 	});
 
@@ -37,13 +37,23 @@ describe("verifyTurnstileToken", () => {
 			ok: false,
 		});
 
-		const result = await verifyTurnstileToken("token", "secret");
+		const result = await verifyTurnstileToken("some-token-that-is-long-enough", "secret");
 		expect(result).toBe(false);
 	});
 
 	it("returns false for empty or oversized tokens", async () => {
 		expect(await verifyTurnstileToken("", "secret")).toBe(false);
 		expect(await verifyTurnstileToken("x".repeat(2049), "secret")).toBe(false);
+	});
+
+	it("returns false for tokens shorter than 20 characters", async () => {
+		expect(await verifyTurnstileToken("short", "secret")).toBe(false);
+		expect(await verifyTurnstileToken("x".repeat(19), "secret")).toBe(false);
+	});
+
+	it("returns false for whitespace-padded tokens under 20 trimmed chars", async () => {
+		expect(await verifyTurnstileToken("   short   ", "secret")).toBe(false);
+		expect(await verifyTurnstileToken(" ".repeat(30), "secret")).toBe(false);
 	});
 
 	it("returns false for stale challenges", async () => {
@@ -53,7 +63,7 @@ describe("verifyTurnstileToken", () => {
 			json: () => Promise.resolve({ success: true, challenge_ts: staleTs }),
 		});
 
-		const result = await verifyTurnstileToken("token", "secret");
+		const result = await verifyTurnstileToken("stale-token-long-enough-for-check", "secret");
 		expect(result).toBe(false);
 	});
 
@@ -64,7 +74,7 @@ describe("verifyTurnstileToken", () => {
 		});
 		globalThis.fetch = mockFetch;
 
-		await verifyTurnstileToken("my-token", "my-secret");
+		await verifyTurnstileToken("my-token-long-enough-for-test", "my-secret");
 
 		expect(mockFetch).toHaveBeenCalledWith(
 			"https://challenges.cloudflare.com/turnstile/v0/siteverify",
@@ -76,6 +86,6 @@ describe("verifyTurnstileToken", () => {
 
 		const body = mockFetch.mock.calls[0][1].body as URLSearchParams;
 		expect(body.get("secret")).toBe("my-secret");
-		expect(body.get("response")).toBe("my-token");
+		expect(body.get("response")).toBe("my-token-long-enough-for-test");
 	});
 });

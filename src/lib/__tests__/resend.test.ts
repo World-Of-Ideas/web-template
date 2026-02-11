@@ -114,6 +114,23 @@ describe("resend", () => {
 		).rejects.toThrow("Resend API error (500): Internal Server Error");
 	});
 
+	it("passes AbortSignal for 5s timeout", async () => {
+		const mockFetch = vi.fn().mockResolvedValue(
+			new Response(JSON.stringify({ id: "ok" }), { status: 200 }),
+		);
+		globalThis.fetch = mockFetch;
+
+		await sendEmail("re_key", {
+			from: "a@b.com",
+			to: "c@d.com",
+			subject: "S",
+			html: "H",
+		});
+
+		const options = mockFetch.mock.calls[0][1];
+		expect(options.signal).toBeInstanceOf(AbortSignal);
+	});
+
 	it("wraps to field as single-element array", async () => {
 		const mockFetch = vi.fn().mockResolvedValue(
 			new Response(JSON.stringify({ id: "ok" }), { status: 200 }),

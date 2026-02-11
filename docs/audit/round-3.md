@@ -196,11 +196,12 @@
 **Issue:** `clearTimeout` was only called on the success path. If fetch was aborted, the timer would leak until it fired.
 **Fix:** Moved `clearTimeout` to `finally` blocks in both `sendMetaConversionEvent` and `sendGaConversionEvent`.
 
-### L5 — Image block renders empty alt for meaningful images
+### L5 — Image block renders empty alt for meaningful images [BAD FIX — reverted in R4 L15]
 
 **File:** `src/components/content/blocks/image-block.tsx`
 **Issue:** `alt={block.alt ?? ""}` produced empty alt text for content images, causing screen readers to skip them.
-**Fix:** Changed to `alt={block.alt || "Blog image"}` as a fallback for missing alt text.
+**Fix applied:** Changed to `alt={block.alt || "Blog image"}`.
+**Post-mortem:** This fix was wrong. The fallback "Blog image" is misleading on non-blog pages (content pages also use image blocks). The correct approach is `alt=""` for decorative images without author-provided alt text — which is what R4 L15 reverted to. Net result: two rounds of changes to end up with `alt={block.alt || ""}`, nearly identical to the original `alt={block.alt ?? ""}`.
 
 ### L6 — Callout block lacks semantic role
 
@@ -238,11 +239,12 @@
 **Issue:** Multiple `<nav>` elements on the page lacked distinguishing `aria-label` values.
 **Fix:** Added `aria-label="Main navigation"` to header nav, wrapped footer links in `<nav aria-label="Footer navigation">`.
 
-### L12 — Cookie consent banner lacks accessibility attributes
+### L12 — Cookie consent banner lacks accessibility attributes [BAD FIX — corrected in R4 M11]
 
 **File:** `src/components/shared/cookie-consent-banner.tsx`
 **Issue:** The fixed-position cookie banner had no `role` or `aria-label`.
-**Fix:** Added `role="dialog"` and `aria-label="Cookie consent"` to the banner wrapper.
+**Fix applied:** Added `role="dialog"` and `aria-label="Cookie consent"`.
+**Post-mortem:** This fix was wrong. `role="dialog"` requires focus trapping per WAI-ARIA spec. The banner doesn't trap focus, so the fix introduced a new a11y violation. R4 M11 corrected this to `role="region"`.
 
 ### L13 — Minor test infrastructure gaps
 

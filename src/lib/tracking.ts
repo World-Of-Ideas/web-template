@@ -122,10 +122,13 @@ export async function sendMetaConversionEvent(params: {
 	const timeout = setTimeout(() => controller.abort(), 5000);
 	try {
 		await fetch(
-			`https://graph.facebook.com/v21.0/${settings.metaPixelId}/events?access_token=${settings.metaCapiToken}`,
+			`https://graph.facebook.com/v21.0/${settings.metaPixelId}/events`,
 			{
 				method: "POST",
-				headers: { "Content-Type": "application/json" },
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${settings.metaCapiToken}`,
+				},
 				body: JSON.stringify(payload),
 				signal: controller.signal,
 			},

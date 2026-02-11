@@ -353,6 +353,12 @@ describe("validatePostBody", () => {
 		).toBe("Description is required");
 	});
 
+	it("returns error when description is empty string", () => {
+		expect(
+			validatePostBody({ slug: "test", title: "Test", description: "" }),
+		).toBe("Description is required");
+	});
+
 	it("returns error when slug is too long", () => {
 		expect(
 			validatePostBody({

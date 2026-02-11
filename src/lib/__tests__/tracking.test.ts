@@ -121,8 +121,9 @@ describe("tracking", () => {
 			expect(mockFetch).toHaveBeenCalledOnce();
 			const [url, options] = mockFetch.mock.calls[0];
 
-			expect(url).toContain("https://graph.facebook.com/v21.0/pixel-123/events");
-			expect(url).toContain("access_token=capi-token-abc");
+			expect(url).toBe("https://graph.facebook.com/v21.0/pixel-123/events");
+			expect(url).not.toContain("access_token");
+			expect(options.headers.Authorization).toBe("Bearer capi-token-abc");
 
 			expect(options.method).toBe("POST");
 			expect(options.headers["Content-Type"]).toBe("application/json");

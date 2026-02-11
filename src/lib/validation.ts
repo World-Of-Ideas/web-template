@@ -51,7 +51,7 @@ export function validatePostBody(body: unknown): string | null {
 	if (slugErr) return slugErr;
 	if (typeof b.title !== "string" || !b.title) return "Title is required";
 	if (b.title.length > 200) return "Title is too long (max 200 characters)";
-	if (typeof b.description !== "string") return "Description is required";
+	if (typeof b.description !== "string" || !b.description) return "Description is required";
 	if (b.description.length > 500) return "Description is too long (max 500 characters)";
 	if (b.content !== undefined && !Array.isArray(b.content)) return "Content must be an array";
 	if (b.faqs !== undefined && b.faqs !== null && !Array.isArray(b.faqs)) return "FAQs must be an array";
