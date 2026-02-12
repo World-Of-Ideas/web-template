@@ -3,7 +3,6 @@
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Turnstile } from "@/components/shared/turnstile";
 import { getUtmParams } from "@/lib/utm";
@@ -73,6 +72,7 @@ export function SignupForm({ referralCode }: SignupFormProps) {
 					onChange={(e) => setName(e.target.value)}
 					required
 					disabled={isSubmitting}
+					className="rounded-full"
 				/>
 			</div>
 
@@ -86,6 +86,7 @@ export function SignupForm({ referralCode }: SignupFormProps) {
 					onChange={(e) => setEmail(e.target.value)}
 					required
 					disabled={isSubmitting}
+					className="rounded-full"
 				/>
 			</div>
 
@@ -95,9 +96,13 @@ export function SignupForm({ referralCode }: SignupFormProps) {
 				<p className="text-sm text-destructive" role="alert">{error}</p>
 			)}
 
-			<Button type="submit" className="w-full" disabled={isSubmitting}>
+			<button
+				type="submit"
+				className="w-full rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+				disabled={isSubmitting}
+			>
 				{isSubmitting ? "Joining..." : "Join the Waitlist"}
-			</Button>
+			</button>
 		</form>
 	);
 }

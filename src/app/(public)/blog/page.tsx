@@ -54,18 +54,18 @@ export default async function BlogPage({
 			<Breadcrumbs
 				items={[
 					{ label: "Home", href: "/" },
-					{ label: "Blog", href: "/blog" },
 				]}
+				currentPage="Blog"
 			/>
 
-			<div className="mx-auto max-w-5xl px-6 py-16">
-				<h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Blog</h1>
-				<p className="mt-2 text-muted-foreground">
+			<div className="mx-auto max-w-[1128px] px-4 py-12 sm:px-6 sm:py-16">
+				<h1 className="text-3xl font-normal tracking-tight sm:text-4xl md:text-5xl">Blog</h1>
+				<p className="mt-2 text-base text-muted-foreground sm:text-lg">
 					The latest articles and updates from {siteConfig.name}.
 				</p>
 
 				{posts.length > 0 ? (
-					<div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
+					<div className="mt-12 grid gap-8 md:grid-cols-2">
 						{posts.map((post) => (
 							<PostCard key={post.slug} post={post} />
 						))}
@@ -78,16 +78,16 @@ export default async function BlogPage({
 
 				{/* Pagination */}
 				{totalPages > 1 && (
-					<nav className="mt-12 flex items-center justify-center gap-4" aria-label="Blog pagination">
+					<nav className="mt-12 flex items-center justify-center gap-2 sm:gap-4" aria-label="Blog pagination">
 						{currentPage > 1 ? (
 							<Link
 								href={`/blog?page=${currentPage - 1}`}
-								className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-accent"
+								className="rounded-full border px-4 py-2 text-sm font-medium hover:bg-accent"
 							>
 								Previous
 							</Link>
 						) : (
-							<span aria-disabled="true" className="rounded-md border px-4 py-2 text-sm font-medium text-muted-foreground opacity-50">
+							<span aria-disabled="true" className="rounded-full border px-4 py-2 text-sm font-medium text-muted-foreground opacity-50">
 								Previous
 							</span>
 						)}
@@ -99,12 +99,12 @@ export default async function BlogPage({
 						{currentPage < totalPages ? (
 							<Link
 								href={`/blog?page=${currentPage + 1}`}
-								className="rounded-md border px-4 py-2 text-sm font-medium hover:bg-accent"
+								className="rounded-full border px-4 py-2 text-sm font-medium hover:bg-accent"
 							>
 								Next
 							</Link>
 						) : (
-							<span aria-disabled="true" className="rounded-md border px-4 py-2 text-sm font-medium text-muted-foreground opacity-50">
+							<span aria-disabled="true" className="rounded-full border px-4 py-2 text-sm font-medium text-muted-foreground opacity-50">
 								Next
 							</span>
 						)}

@@ -42,7 +42,7 @@ export function Breadcrumbs({ items, currentPage }: BreadcrumbsProps) {
 	return (
 		<>
 			<JsonLd data={jsonLd} />
-			<nav aria-label="Breadcrumb" className="mb-6">
+			<nav aria-label="Breadcrumb" className="mx-auto mb-6 max-w-[1440px] px-4 pt-4 sm:px-6">
 				<ol className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
 					{breadcrumbs.map((item, index) => (
 						<li key={`${index}-${item.href}`} className="flex items-center gap-1">

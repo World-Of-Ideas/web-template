@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { siteConfig } from "@/config/site";
 import { getPublishedPageBySlug, getChildPages } from "@/lib/pages";
-import { ContentRenderer } from "@/components/content/content-renderer";
 import { FaqSection } from "@/components/layout/faq-section";
 import { RelatedPages } from "@/components/layout/related-pages";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { JsonLd } from "@/components/shared/json-ld";
-import type { FAQ, RelatedPage } from "@/types/content";
+import { DefaultTemplate } from "@/components/templates/default-template";
+import { LandingTemplate } from "@/components/templates/landing-template";
+import { ListingTemplate } from "@/components/templates/listing-template";
+import { PillarTemplate } from "@/components/templates/pillar-template";
+import type { FAQ, RelatedPage, PageLayout } from "@/types/content";
 
 export async function generateMetadata({
 	params,
@@ -58,17 +60,58 @@ export default async function CatchAllPage({
 		notFound();
 	}
 
-	const faqs = (page.faqs ?? []) as FAQ[];
-	const relatedPages = (page.relatedPages ?? []) as RelatedPage[];
+	const { title, description, content, faqs: rawFaqs, relatedPages: rawRelated, layout: rawLayout } = page;
+	const faqs = (rawFaqs ?? []) as FAQ[];
+	const relatedPages = (rawRelated ?? []) as RelatedPage[];
 	const children = await getChildPages(page.slug);
+	const layout = (rawLayout ?? "default") as PageLayout;
 
-	// Build breadcrumbs from slug hierarchy
+	// Build breadcrumbs from slug hierarchy (all except current page)
 	const breadcrumbItems = [{ label: "Home", href: "/" }];
 	const slugParts = slug;
-	for (let i = 0; i < slugParts.length; i++) {
+	for (let i = 0; i < slugParts.length - 1; i++) {
 		const href = `/${slugParts.slice(0, i + 1).join("/")}`;
-		const label = i === slugParts.length - 1 ? page.title : slugParts[i];
-		breadcrumbItems.push({ label, href });
+		breadcrumbItems.push({ label: slugParts[i], href });
+	}
+
+	function renderTemplate() {
+		switch (layout) {
+			case "landing":
+				return (
+					<LandingTemplate
+						title={title}
+						description={description}
+						content={content}
+					/>
+				);
+			case "listing":
+				return (
+					<ListingTemplate
+						title={title}
+						description={description}
+						content={content}
+						children={children}
+					/>
+				);
+			case "pillar":
+				return (
+					<PillarTemplate
+						title={title}
+						description={description}
+						content={content}
+						children={children}
+					/>
+				);
+			default:
+				return (
+					<DefaultTemplate
+						title={title}
+						description={description}
+						content={content}
+						children={children}
+					/>
+				);
+		}
 	}
 
 	return (
@@ -77,56 +120,15 @@ export default async function CatchAllPage({
 				data={{
 					"@context": "https://schema.org",
 					"@type": "WebPage",
-					name: page.title,
-					description: page.description,
+					name: title,
+					description,
 					url: `${siteConfig.url}/${fullSlug}`,
 				}}
 			/>
 
-			<Breadcrumbs items={breadcrumbItems} />
+			<Breadcrumbs items={breadcrumbItems} currentPage={title} />
 
-			<div className="mx-auto max-w-3xl px-6 py-16">
-				<h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
-					{page.title}
-				</h1>
-
-				{page.description && (
-					<p className="mt-2 text-lg text-muted-foreground">
-						{page.description}
-					</p>
-				)}
-
-				{page.content && (
-					<div className="mt-8">
-						<ContentRenderer blocks={page.content} />
-					</div>
-				)}
-
-				{/* Child pages grid */}
-				{children.length > 0 && (
-					<div className="mt-12">
-						<h2 className="text-2xl font-bold tracking-tight">In This Section</h2>
-						<div className="mt-6 grid gap-6 sm:grid-cols-2">
-							{children.map((child) => (
-								<Link
-									key={child.slug}
-									href={`/${child.slug}`}
-									className="group rounded-lg border p-6 transition-colors hover:bg-accent"
-								>
-									<h3 className="font-semibold group-hover:text-primary">
-										{child.title}
-									</h3>
-									{child.description && (
-										<p className="mt-2 text-sm text-muted-foreground">
-											{child.description}
-										</p>
-									)}
-								</Link>
-							))}
-						</div>
-					</div>
-				)}
-			</div>
+			{renderTemplate()}
 
 			{faqs.length > 0 && <FaqSection faqs={faqs} />}
 			{relatedPages.length > 0 && <RelatedPages pages={relatedPages} />}

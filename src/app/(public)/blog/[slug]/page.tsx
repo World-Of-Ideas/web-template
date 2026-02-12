@@ -8,7 +8,6 @@ import { FaqSection } from "@/components/layout/faq-section";
 import { RelatedPosts } from "@/components/blog/related-posts";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { JsonLd } from "@/components/shared/json-ld";
-import { Badge } from "@/components/ui/badge";
 import { isSafeUrl } from "@/lib/utils";
 import { normalizeImageSrc } from "@/lib/r2";
 import type { FAQ } from "@/types/content";
@@ -98,19 +97,19 @@ export default async function BlogPostPage({
 				items={[
 					{ label: "Home", href: "/" },
 					{ label: "Blog", href: "/blog" },
-					{ label: post.title, href: `/blog/${post.slug}` },
 				]}
+				currentPage={post.title}
 			/>
 
-			<article className="mx-auto max-w-3xl px-6 py-16">
+			<article className="mx-auto max-w-[744px] px-4 py-12 sm:px-6 sm:py-16">
 				<header>
-					<h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
+					<h1 className="text-2xl font-normal tracking-tight sm:text-4xl md:text-5xl">
 						{post.title}
 					</h1>
-					<p className="mt-2 text-lg text-muted-foreground">
+					<p className="mt-3 text-base text-muted-foreground sm:text-lg">
 						{post.description}
 					</p>
-					<div className="mt-4 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+					<div className="mt-4 flex flex-wrap items-center gap-2 text-sm text-muted-foreground sm:gap-4">
 						<span>By {post.author}</span>
 						{post.publishedAt && (
 							<time dateTime={post.publishedAt}>
@@ -125,9 +124,9 @@ export default async function BlogPostPage({
 					{tags.length > 0 && (
 						<div className="mt-4 flex flex-wrap gap-2">
 							{tags.map((tag) => (
-								<Badge key={tag} variant="secondary">
+								<span key={tag} className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
 									{tag}
-								</Badge>
+								</span>
 							))}
 						</div>
 					)}
@@ -136,7 +135,7 @@ export default async function BlogPostPage({
 				{post.coverImage && isSafeUrl(post.coverImage) && (
 					<Image
 						src={normalizeImageSrc(post.coverImage)}
-						alt=""
+						alt={post.title}
 						width={1200}
 						height={675}
 						className="mt-8 w-full h-auto rounded-lg object-cover"

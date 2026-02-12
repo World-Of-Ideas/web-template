@@ -30,7 +30,7 @@ export function FaqSection({ faqs }: FaqSectionProps) {
 	};
 
 	return (
-		<section className="my-12 mx-auto max-w-3xl px-6">
+		<section className="my-12 mx-auto max-w-3xl px-4 sm:px-6">
 			<JsonLd data={jsonLd} />
 			<h2 className="mb-6 text-2xl font-bold">Frequently Asked Questions</h2>
 			<Accordion type="single" collapsible className="w-full">

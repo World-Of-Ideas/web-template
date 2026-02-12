@@ -12,7 +12,7 @@ export function ParagraphBlock({ block }: ParagraphBlockProps) {
 	const hasLink = block.link && block.linkText && isSafeUrl(block.link);
 
 	return (
-		<p>
+		<p className="text-base leading-relaxed sm:text-lg sm:leading-[27px]">
 			{block.text}
 			{hasLink && (
 				<>

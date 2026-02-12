@@ -6,49 +6,7 @@
       "idx": 0,
       "version": "6",
       "when": 1770635628056,
-      "tag": "0000_bright_stellaris",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "6",
-      "when": 1770660580048,
-      "tag": "0001_fancy_george_stacy",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "6",
-      "when": 1770661091908,
-      "tag": "0002_low_firelord",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "6",
-      "when": 1770662849801,
-      "tag": "0003_material_gunslinger",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "6",
-      "when": 1770664687957,
-      "tag": "0004_amused_king_cobra",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "6",
-      "when": 1770750000000,
-      "tag": "0005_audit_fixes",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "6",
-      "when": 1770850000000,
-      "tag": "0006_audit_round2",
+      "tag": "0000_initial",
       "breakpoints": true
     }
   ]

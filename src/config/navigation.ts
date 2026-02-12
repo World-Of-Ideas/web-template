@@ -11,11 +11,23 @@ export interface FooterGroup {
 	links: NavLink[];
 }
 
+export interface HeaderCtaButton {
+	label: string;
+	href: string;
+	variant: "primary" | "outline";
+	feature?: FeatureKey;
+}
+
 export const headerLinks: NavLink[] = [
 	{ label: "Waitlist", href: "/waitlist", feature: "waitlist" },
 	{ label: "Giveaway", href: "/giveaway", feature: "giveaway" },
 	{ label: "Blog", href: "/blog", feature: "blog" },
 	{ label: "Contact", href: "/contact", feature: "contact" },
+];
+
+export const headerCtaButtons: HeaderCtaButton[] = [
+	{ label: "Enter Giveaway", href: "/giveaway", variant: "primary", feature: "giveaway" },
+	{ label: "Contact", href: "/contact", variant: "outline", feature: "contact" },
 ];
 
 export const footerGroups: FooterGroup[] = [

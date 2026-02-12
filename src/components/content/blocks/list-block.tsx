@@ -10,7 +10,7 @@ export function ListBlock({ block }: ListBlockProps) {
 	const Tag = block.ordered ? "ol" : "ul";
 
 	return (
-		<Tag>
+		<Tag className={`text-base leading-relaxed space-y-2 sm:text-lg sm:leading-[27px] ${block.ordered ? "list-decimal pl-6" : "list-disc pl-6"}`}>
 			{block.items.map((item, i) => (
 				<li key={i}>{item}</li>
 			))}

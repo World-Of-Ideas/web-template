@@ -23,11 +23,18 @@ export const siteConfig = {
 	// Set NEXT_PUBLIC_TURNSTILE_SITE_KEY in production; falls back to always-pass test key for dev
 	turnstileSiteKey: process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA",
 
+	// Page/route features — disabling hides routes, nav links, sitemap entries
 	features: {
 		waitlist: true,
 		giveaway: true,
 		blog: true,
 		contact: true,
+	},
+
+	// UI features — toggle header/layout UI elements
+	ui: {
+		search: true,       // Cmd+K search dialog + header search icon
+		themeToggle: true,  // Light/dark mode toggle in header
 	},
 } satisfies {
 	name: string;
@@ -38,6 +45,7 @@ export const siteConfig = {
 	social: { twitter: string; github: string; discord: string; instagram: string };
 	turnstileSiteKey: string;
 	features: Record<string, boolean>;
+	ui: Record<string, boolean>;
 };
 
 export type SiteConfig = typeof siteConfig;

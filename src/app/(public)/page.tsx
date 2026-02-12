@@ -10,7 +10,8 @@ import { PostCard } from "@/components/blog/post-card";
 import { SubscriberCount } from "@/components/waitlist/subscriber-count";
 import { FaqSection } from "@/components/layout/faq-section";
 import { RelatedPages } from "@/components/layout/related-pages";
-import { Breadcrumbs } from "@/components/layout/breadcrumbs";
+import { GradientBackground } from "@/components/shared/gradient-background";
+import { CtaSection } from "@/components/shared/cta-section";
 import type { FAQ, RelatedPage } from "@/types/content";
 
 export const metadata: Metadata = {
@@ -61,22 +62,21 @@ export default async function HomePage() {
 				}}
 			/>
 
-			{/* No breadcrumbs on home page — it IS the root */}
-
 			{/* Hero Section */}
-			<section className="px-6 py-24 text-center">
-				<div className="mx-auto max-w-3xl">
-					<h1 className="text-4xl font-bold tracking-tight sm:text-6xl">
+			<section className="relative overflow-hidden px-4 py-20 text-center sm:px-6 sm:py-32 md:py-40">
+				<GradientBackground />
+				<div className="relative mx-auto max-w-4xl">
+					<h1 className="text-3xl font-normal tracking-tight sm:text-5xl md:text-7xl">
 						{siteConfig.name}
 					</h1>
-					<p className="mt-6 text-lg text-muted-foreground">
+					<p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:mt-6 sm:text-lg md:text-xl">
 						{siteConfig.description}
 					</p>
-					<div className="mt-10 flex items-center justify-center gap-4">
+					<div className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row sm:gap-4">
 						{isPreLaunch ? (
 							<Link
 								href="/waitlist"
-								className="rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
+								className="rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
 							>
 								{cta.buttonText}
 							</Link>
@@ -85,7 +85,7 @@ export default async function HomePage() {
 								{siteConfig.productLinks.appUrl && (
 									<a
 										href={siteConfig.productLinks.appUrl}
-										className="rounded-md bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground shadow-sm hover:bg-primary/90"
+										className="rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
 									>
 										{cta.buttonText}
 									</a>
@@ -93,7 +93,7 @@ export default async function HomePage() {
 								{siteConfig.productLinks.appStoreUrl && (
 									<a
 										href={siteConfig.productLinks.appStoreUrl}
-										className="rounded-md border border-input px-6 py-3 text-sm font-semibold hover:bg-accent"
+										className="rounded-full border border-border px-8 py-3 text-sm font-medium transition-colors hover:bg-accent"
 									>
 										App Store
 									</a>
@@ -101,7 +101,7 @@ export default async function HomePage() {
 								{siteConfig.productLinks.playStoreUrl && (
 									<a
 										href={siteConfig.productLinks.playStoreUrl}
-										className="rounded-md border border-input px-6 py-3 text-sm font-semibold hover:bg-accent"
+										className="rounded-full border border-border px-8 py-3 text-sm font-medium transition-colors hover:bg-accent"
 									>
 										Play Store
 									</a>
@@ -114,7 +114,7 @@ export default async function HomePage() {
 
 			{/* Page Content (editable via admin) */}
 			{homePage?.content && homePage.content.length > 0 && (
-				<section className="px-6 py-16">
+				<section className="px-4 py-12 sm:px-6 sm:py-16">
 					<div className="mx-auto max-w-3xl">
 						<ContentRenderer blocks={homePage.content} />
 					</div>
@@ -130,12 +130,12 @@ export default async function HomePage() {
 
 			{/* Latest Posts */}
 			{siteConfig.features.blog && recentPosts.length > 0 && (
-				<section className="px-6 py-16">
-					<div className="mx-auto max-w-5xl">
-						<h2 className="text-center text-3xl font-bold tracking-tight">
+				<section className="px-4 py-12 sm:px-6 sm:py-16">
+					<div className="mx-auto max-w-[1128px]">
+						<h2 className="text-center text-2xl font-normal tracking-tight sm:text-3xl">
 							Latest Posts
 						</h2>
-						<div className="mt-12 grid gap-8 md:grid-cols-3">
+						<div className="mt-8 grid gap-6 sm:mt-12 sm:gap-8 md:grid-cols-3">
 							{recentPosts.map((post) => (
 								<PostCard key={post.slug} post={post} />
 							))}
@@ -151,6 +151,14 @@ export default async function HomePage() {
 					</div>
 				</section>
 			)}
+
+			{/* CTA Section */}
+			<CtaSection
+				title={cta.heading}
+				description={cta.description}
+				buttonText={cta.buttonText}
+				buttonHref={isPreLaunch ? "/waitlist" : (siteConfig.productLinks.appUrl || "/waitlist")}
+			/>
 
 			{/* FAQs */}
 			{faqs.length > 0 && <FaqSection faqs={faqs} />}

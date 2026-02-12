@@ -11,7 +11,7 @@ export function TableBlock({ block }: TableBlockProps) {
 		<div className="not-prose my-6 overflow-x-auto">
 			<table className="w-full border-collapse text-sm" aria-label="Data table">
 				<thead>
-					<tr className="border-b">
+					<tr className="border-b border-border dark:border-white/20">
 						{block.headers.map((header, i) => (
 							<th key={i} className="px-4 py-2 text-left font-semibold">
 								{header}
@@ -21,7 +21,7 @@ export function TableBlock({ block }: TableBlockProps) {
 				</thead>
 				<tbody>
 					{block.rows.map((row, i) => (
-						<tr key={i} className="border-b">
+						<tr key={i} className="border-b border-border dark:border-white/20">
 							{row.map((cell, j) => (
 								<td key={j} className="px-4 py-2">
 									{cell}

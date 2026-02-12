@@ -111,6 +111,7 @@ export const pages = sqliteTable(
 		relatedPages: text("related_pages", { mode: "json" }).$type<RelatedPage[]>(),
 		coverImage: text("cover_image"),
 		metadata: text("metadata", { mode: "json" }).$type<Record<string, unknown>>(),
+		layout: text("layout").notNull().default("default"),
 		published: integer("published", { mode: "boolean" }).notNull().default(true),
 		sortOrder: integer("sort_order").notNull().default(0),
 		updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),

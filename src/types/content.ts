@@ -34,6 +34,16 @@ export interface ContentBlock {
 	downloadLabel?: string;
 }
 
+export type PageLayout = "default" | "landing" | "listing" | "pillar";
+
+export interface SectionListingConfig {
+	gridCols: 2 | 3;
+	cardVariant: "default" | "compact";
+	itemsPerPage: number;
+	showBadges: boolean;
+	cardLabel: string;
+}
+
 export interface FAQ {
 	question: string;
 	answer: string;

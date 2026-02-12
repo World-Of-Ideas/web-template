@@ -15,7 +15,7 @@ interface ContentRendererProps {
 
 export function ContentRenderer({ blocks }: ContentRendererProps) {
 	return (
-		<div className="prose prose-neutral max-w-none dark:prose-invert">
+		<div className="space-y-4 sm:space-y-6">
 			{blocks.map((block, index) => {
 				// Content blocks are read-only once rendered, so type+index is a stable key
 				const key = `${block.type}-${index}`;

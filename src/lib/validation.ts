@@ -99,6 +99,12 @@ export function validatePageBody(body: unknown, requireSlug = true): string | nu
 	if (b.relatedPages !== undefined && b.relatedPages !== null && !Array.isArray(b.relatedPages)) return "Related pages must be an array";
 	if (b.published !== undefined && typeof b.published !== "boolean") return "Published must be a boolean";
 	if (b.sortOrder !== undefined && typeof b.sortOrder !== "number") return "Sort order must be a number";
+	if (b.layout !== undefined) {
+		const validLayouts = ["default", "landing", "listing", "pillar"];
+		if (typeof b.layout !== "string" || !validLayouts.includes(b.layout)) {
+			return "Layout must be one of: default, landing, listing, pillar";
+		}
+	}
 	return null;
 }
 

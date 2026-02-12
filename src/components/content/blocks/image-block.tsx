@@ -17,7 +17,7 @@ export function ImageBlock({ block }: ImageBlockProps) {
 				alt={block.alt || ""}
 				width={1200}
 				height={675}
-				className="w-full h-auto rounded-lg"
+				className="w-full h-auto rounded-lg bg-muted"
 				loading="lazy"
 			/>
 		</figure>

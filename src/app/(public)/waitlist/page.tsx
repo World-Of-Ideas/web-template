@@ -54,11 +54,11 @@ export default async function WaitlistPage({
 			<Breadcrumbs
 				items={[
 					{ label: "Home", href: "/" },
-					{ label: "Waitlist", href: "/waitlist" },
 				]}
+				currentPage="Waitlist"
 			/>
 
-			<div className="mx-auto max-w-3xl px-6 py-16">
+			<div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
 				<h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
 					Join the Waitlist
 				</h1>

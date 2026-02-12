@@ -30,6 +30,7 @@ interface PageData {
 	relatedPages: RelatedPage[] | null;
 	coverImage: string | null;
 	metadata: Record<string, unknown> | null;
+	layout: string;
 	published: boolean;
 	sortOrder: number;
 }
@@ -56,6 +57,7 @@ export function PageEditor({ page, isSystem, availableParentSlugs = [], existing
 	const [parentSlug, setParentSlug] = useState(page?.parentSlug ?? "");
 	const [description, setDescription] = useState(page?.description ?? "");
 	const [coverImage, setCoverImage] = useState(page?.coverImage ?? "");
+	const [layout, setLayout] = useState(page?.layout ?? "default");
 	const [published, setPublished] = useState(page?.published ?? true);
 	const [sortOrder, setSortOrder] = useState(page?.sortOrder ?? 0);
 	const [content, setContent] = useState<ContentBlock[]>(
@@ -109,6 +111,7 @@ export function PageEditor({ page, isSystem, availableParentSlugs = [], existing
 			parentSlug: parentSlug || null,
 			description,
 			coverImage,
+			layout,
 			published,
 			sortOrder,
 			content,
@@ -208,6 +211,23 @@ export function PageEditor({ page, isSystem, availableParentSlugs = [], existing
 					/>
 				</div>
 			</div>
+
+			{!isSystem && (
+				<div className="space-y-2">
+					<Label>Layout</Label>
+					<Select value={layout} onValueChange={setLayout}>
+						<SelectTrigger className="w-full">
+							<SelectValue placeholder="Select layout" />
+						</SelectTrigger>
+						<SelectContent>
+							<SelectItem value="default">Default</SelectItem>
+							<SelectItem value="landing">Landing</SelectItem>
+							<SelectItem value="listing">Listing</SelectItem>
+							<SelectItem value="pillar">Pillar</SelectItem>
+						</SelectContent>
+					</Select>
+				</div>
+			)}
 
 			<div className="space-y-2">
 				<Label htmlFor="page-description">Description</Label>

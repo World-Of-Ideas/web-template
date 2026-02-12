@@ -64,6 +64,7 @@ export async function createPage(data: {
 	relatedPages?: unknown;
 	coverImage?: string;
 	metadata?: unknown;
+	layout?: string;
 	published?: boolean;
 	sortOrder?: number;
 }) {
@@ -80,6 +81,7 @@ export async function createPage(data: {
 			relatedPages: (data.relatedPages as typeof pages.$inferInsert.relatedPages) ?? null,
 			coverImage: data.coverImage ?? null,
 			metadata: (data.metadata as typeof pages.$inferInsert.metadata) ?? null,
+			layout: data.layout ?? "default",
 			published: data.published ?? true,
 			sortOrder: data.sortOrder ?? 0,
 		})
@@ -98,6 +100,7 @@ export async function updatePage(
 		relatedPages: unknown;
 		coverImage: string | null;
 		metadata: unknown;
+		layout: string;
 		published: boolean;
 		sortOrder: number;
 	}>,
@@ -115,6 +118,7 @@ export async function updatePage(
 	if (data.relatedPages !== undefined) updateData.relatedPages = data.relatedPages;
 	if (data.coverImage !== undefined) updateData.coverImage = data.coverImage;
 	if (data.metadata !== undefined) updateData.metadata = data.metadata;
+	if (data.layout !== undefined) updateData.layout = data.layout;
 	if (data.published !== undefined) updateData.published = data.published;
 	if (data.sortOrder !== undefined) updateData.sortOrder = data.sortOrder;
 

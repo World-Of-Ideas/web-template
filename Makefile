@@ -1,6 +1,7 @@
 .PHONY: help dev build lint typecheck test test-watch test-coverage test-ci \
        e2e e2e-ui e2e-headed e2e-admin e2e-posts e2e-pages e2e-readonly e2e-tracking \
-       db-generate db-migrate db-seed db-studio \
+       db-generate db-migrate db-seed db-studio db-reset \
+       db-recreate db-recreate-uat db-seed-uat \
        deploy-uat deploy-prod preview preview-uat \
        ci audit clean
 
@@ -95,6 +96,19 @@ db-studio:            ## Open Drizzle Studio
 db-reset:             ## Reset local DB: migrate + seed
 	npx wrangler d1 migrations apply DB --local
 	npx wrangler d1 execute DB --local --file=src/db/seed.sql
+
+db-recreate:          ## Recreate local DB from scratch: wipe + migrate + seed
+	rm -rf .wrangler/state/v3/d1
+	npx wrangler d1 migrations apply DB --local
+	npx wrangler d1 execute DB --local --file=src/db/seed.sql
+
+db-recreate-uat:      ## Recreate UAT DB from scratch: drop all + migrate + seed
+	npx wrangler d1 execute DB --env uat --remote --command "DROP TABLE IF EXISTS giveaway_actions; DROP TABLE IF EXISTS giveaway_entries; DROP TABLE IF EXISTS contact_submissions; DROP TABLE IF EXISTS admin_sessions; DROP TABLE IF EXISTS posts; DROP TABLE IF EXISTS pages; DROP TABLE IF EXISTS subscribers; DROP TABLE IF EXISTS tracking_settings; DROP TABLE IF EXISTS d1_migrations; DROP TABLE IF EXISTS sqlite_sequence; DELETE FROM _cf_KV;"
+	npx wrangler d1 migrations apply DB --env uat --remote
+	npx wrangler d1 execute DB --env uat --remote --file=src/db/seed.sql
+
+db-seed-uat:          ## Seed UAT D1 with test data (remote)
+	npx wrangler d1 execute DB --env uat --remote --file=src/db/seed.sql
 
 # ── Deploy ───────────────────────────────────────────────────
 deploy-uat:           ## Build and deploy to UAT

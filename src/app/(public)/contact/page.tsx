@@ -49,11 +49,11 @@ export default async function ContactPage() {
 			<Breadcrumbs
 				items={[
 					{ label: "Home", href: "/" },
-					{ label: "Contact", href: "/contact" },
 				]}
+				currentPage="Contact"
 			/>
 
-			<div className="mx-auto max-w-3xl px-6 py-16">
+			<div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
 				<h1 className="text-3xl font-bold tracking-tight sm:text-4xl">
 					Contact Us
 				</h1>

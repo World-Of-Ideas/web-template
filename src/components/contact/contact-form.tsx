@@ -2,7 +2,6 @@
 
 import { useState, type FormEvent } from "react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Turnstile } from "@/components/shared/turnstile";
@@ -60,10 +59,10 @@ export function ContactForm() {
 
 	if (isSuccess) {
 		return (
-			<div className="rounded-lg border bg-card p-6 text-center">
+			<div className="rounded-xl border bg-card p-6 text-center">
 				<h3 className="text-lg font-semibold">Message Sent</h3>
 				<p className="mt-2 text-sm text-muted-foreground">
-					Thanks for reaching out! We'll get back to you as soon as possible.
+					Thanks for reaching out! We&apos;ll get back to you as soon as possible.
 				</p>
 			</div>
 		);
@@ -81,6 +80,7 @@ export function ContactForm() {
 					onChange={(e) => setName(e.target.value)}
 					required
 					disabled={isSubmitting}
+					className="rounded-full"
 				/>
 			</div>
 
@@ -94,6 +94,7 @@ export function ContactForm() {
 					onChange={(e) => setEmail(e.target.value)}
 					required
 					disabled={isSubmitting}
+					className="rounded-full"
 				/>
 			</div>
 
@@ -106,7 +107,7 @@ export function ContactForm() {
 					onChange={(e) => setMessage(e.target.value)}
 					required
 					disabled={isSubmitting}
-					className="min-h-[120px]"
+					className="min-h-[120px] rounded-xl"
 				/>
 			</div>
 
@@ -116,9 +117,13 @@ export function ContactForm() {
 				<p className="text-sm text-destructive" role="alert">{error}</p>
 			)}
 
-			<Button type="submit" className="w-full" disabled={isSubmitting}>
+			<button
+				type="submit"
+				className="w-full rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90 disabled:opacity-50"
+				disabled={isSubmitting}
+			>
 				{isSubmitting ? "Sending..." : "Send Message"}
-			</Button>
+			</button>
 		</form>
 	);
 }
