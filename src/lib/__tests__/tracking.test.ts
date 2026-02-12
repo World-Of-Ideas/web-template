@@ -241,6 +241,11 @@ describe("tracking", () => {
 			expect(url).toContain("measurement_id=G-TESTID123");
 			expect(url).toContain("api_secret=mp-secret-xyz");
 
+			// Verify URL encoding is applied
+			expect(url).toBe(
+				"https://www.google-analytics.com/mp/collect?measurement_id=G-TESTID123&api_secret=mp-secret-xyz",
+			);
+
 			expect(options.method).toBe("POST");
 
 			const body = JSON.parse(options.body);
@@ -334,6 +339,29 @@ describe("tracking", () => {
 					sourceUrl: "https://example.com",
 				}),
 			).resolves.toBeUndefined();
+		});
+
+		it("URL-encodes measurement_id and api_secret", async () => {
+			const mockFetch = vi.fn().mockResolvedValue(new Response("ok"));
+			globalThis.fetch = mockFetch;
+
+			const db = await getDb();
+			await db.insert(trackingSettings).values({
+				id: 1,
+				gaMpEnabled: true,
+				gaMpApiSecret: "secret&evil=1",
+				gaMeasurementId: "G-TEST",
+			});
+
+			await sendGaConversionEvent({
+				eventName: "sign_up",
+				sourceUrl: "https://example.com",
+			});
+
+			const [url] = mockFetch.mock.calls[0];
+			// & in secret must be encoded as %26
+			expect(url).toContain("api_secret=secret%26evil%3D1");
+			expect(url).not.toContain("api_secret=secret&evil=1");
 		});
 	});
 

@@ -11,6 +11,11 @@ export async function POST(request: NextRequest) {
 	}
 
 	try {
+		const contentLength = request.headers.get("content-length");
+		if (contentLength && Number(contentLength) > 6 * 1024 * 1024) {
+			return apiError("VALIDATION_ERROR", "Request too large");
+		}
+
 		const formData = await request.formData();
 		const file = formData.get("file") as File | null;
 		const path = formData.get("path") as string | null;

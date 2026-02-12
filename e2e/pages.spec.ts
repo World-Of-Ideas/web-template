@@ -229,7 +229,8 @@ test.describe("Pages: system page edit", () => {
 		await page.goto("/admin/pages/home/edit");
 		await page.waitForLoadState("domcontentloaded");
 
-		const titleInput = page.getByRole("textbox", { name: "Title", exact: true });
+		// Use #page-title to avoid ambiguity with related page "Title" labels
+		const titleInput = page.locator("#page-title");
 		const originalTitle = await titleInput.inputValue();
 
 		// Change title slightly
@@ -241,7 +242,7 @@ test.describe("Pages: system page edit", () => {
 		// Restore original title
 		await page.getByRole("link", { name: originalTitle + " E2E" }).click();
 		await page.waitForURL("**/admin/pages/home/edit");
-		await page.getByRole("textbox", { name: "Title", exact: true }).fill(originalTitle);
+		await page.locator("#page-title").fill(originalTitle);
 		await page.getByRole("button", { name: "Update Page" }).click();
 		await page.waitForURL("**/admin/pages", { timeout: 10_000 });
 	});

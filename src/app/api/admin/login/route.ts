@@ -40,18 +40,10 @@ export async function POST(request: NextRequest) {
 		const cookieStore = await cookies();
 		cookieStore.set("admin_session", sessionId, {
 			httpOnly: true,
-			secure: process.env.NODE_ENV !== "development", // HTTPS always except local dev
-			sameSite: "strict",
-			path: "/admin",
-			maxAge: 60 * 60 * 24, // 24 hours
-		});
-		// Also set for admin API routes
-		cookieStore.set("admin_session", sessionId, {
-			httpOnly: true,
 			secure: process.env.NODE_ENV !== "development",
-			sameSite: "strict",
-			path: "/api/admin",
-			maxAge: 60 * 60 * 24,
+			sameSite: "lax",
+			path: "/",
+			maxAge: 60 * 60 * 24, // 24 hours
 		});
 
 		return apiSuccess({ success: true });

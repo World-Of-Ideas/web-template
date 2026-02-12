@@ -1,14 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
 	const { pathname } = request.nextUrl;
-	const response = NextResponse.next();
-
-	// Set x-pathname header for layout detection
-	response.headers.set("x-pathname", pathname);
 
 	// Admin route protection (first line of defense — routes still validate sessions)
-	const isAdminPage = pathname.startsWith("/admin") && pathname !== "/admin/login";
+	const isAdminPage = pathname.startsWith("/admin") && pathname !== "/admin";
 	const isAdminApi = pathname.startsWith("/api/admin") && pathname !== "/api/admin/login";
 
 	if (isAdminPage || isAdminApi) {
@@ -16,13 +12,19 @@ export function middleware(request: NextRequest) {
 		const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 		if (!sessionCookie?.value || !UUID_RE.test(sessionCookie.value)) {
 			if (isAdminApi) {
-				return NextResponse.json({ error: "UNAUTHORIZED", message: "Not authenticated" }, { status: 401 });
+				return NextResponse.json({ ok: false, error: { code: "UNAUTHORIZED", message: "Not authenticated" } }, { status: 401 });
 			}
-			return NextResponse.redirect(new URL("/admin/login", request.url));
+			return NextResponse.redirect(new URL("/admin", request.url));
 		}
 	}
 
-	return response;
+	// Forward x-pathname as a request header so server components can read it
+	const requestHeaders = new Headers(request.headers);
+	requestHeaders.set("x-pathname", pathname);
+
+	return NextResponse.next({
+		request: { headers: requestHeaders },
+	});
 }
 
 export const config = {

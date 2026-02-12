@@ -176,7 +176,7 @@ export async function sendGaConversionEvent(params: {
 	const timeout2 = setTimeout(() => controller2.abort(), 5000);
 	try {
 		await fetch(
-			`https://www.google-analytics.com/mp/collect?measurement_id=${settings.gaMeasurementId}&api_secret=${settings.gaMpApiSecret}`,
+			`https://www.google-analytics.com/mp/collect?measurement_id=${encodeURIComponent(settings.gaMeasurementId)}&api_secret=${encodeURIComponent(settings.gaMpApiSecret)}`,
 			{
 				method: "POST",
 				headers: { "Content-Type": "application/json" },

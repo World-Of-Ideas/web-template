@@ -73,6 +73,8 @@ export function validatePostUpdateBody(body: unknown): string | null {
 	}
 	if (b.title !== undefined && (typeof b.title !== "string" || !b.title)) return "Title must be a non-empty string";
 	if (b.title !== undefined && (b.title as string).length > 200) return "Title is too long (max 200 characters)";
+	if (b.description !== undefined && (typeof b.description !== "string" || !b.description)) return "Description must be a non-empty string";
+	if (b.description !== undefined && (b.description as string).length > 500) return "Description is too long (max 500 characters)";
 	if (b.content !== undefined && !Array.isArray(b.content)) return "Content must be an array";
 	if (b.faqs !== undefined && b.faqs !== null && !Array.isArray(b.faqs)) return "FAQs must be an array";
 	if (b.tags !== undefined && b.tags !== null && !Array.isArray(b.tags)) return "Tags must be an array";

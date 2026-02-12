@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { normalizeImageSrc } from "@/lib/r2";
+import { isSafeUrl } from "@/lib/utils";
 
 interface PostCardProps {
 	post: {
@@ -27,7 +28,7 @@ export function PostCard({ post }: PostCardProps) {
 	return (
 		<Link href={`/blog/${post.slug}`} className="group">
 			<Card className="h-full overflow-hidden transition-shadow hover:shadow-md">
-				{post.coverImage && (
+				{post.coverImage && isSafeUrl(post.coverImage) && (
 					<div className="relative aspect-[16/9] overflow-hidden">
 						<Image
 							src={normalizeImageSrc(post.coverImage)}

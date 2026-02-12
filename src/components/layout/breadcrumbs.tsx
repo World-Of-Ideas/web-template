@@ -17,26 +17,27 @@ interface BreadcrumbsProps {
 export function Breadcrumbs({ items, currentPage }: BreadcrumbsProps) {
 	const breadcrumbs: BreadcrumbItem[] = items ?? [];
 
-	const jsonLd = {
-		"@context": "https://schema.org",
-		"@type": "BreadcrumbList",
-		itemListElement: breadcrumbs.map((item, index) => ({
-			"@type": "ListItem",
-			position: index + 1,
-			name: item.label,
-			item: `${siteConfig.url}${item.href}`,
-		})),
-	};
+	const itemListElement: Record<string, unknown>[] = breadcrumbs.map((item, index) => ({
+		"@type": "ListItem",
+		position: index + 1,
+		name: item.label,
+		item: `${siteConfig.url}${item.href}`,
+	}));
 
-	// Add current page as the last non-linked item
+	// Last breadcrumb (current page) omits "item" per Google's structured data spec
 	if (currentPage) {
-		jsonLd.itemListElement.push({
+		itemListElement.push({
 			"@type": "ListItem",
 			position: breadcrumbs.length + 1,
 			name: currentPage,
-			item: "",
 		});
 	}
+
+	const jsonLd = {
+		"@context": "https://schema.org",
+		"@type": "BreadcrumbList",
+		itemListElement,
+	};
 
 	return (
 		<>
@@ -54,7 +55,7 @@ export function Breadcrumbs({ items, currentPage }: BreadcrumbsProps) {
 					{currentPage && (
 						<li className="flex items-center gap-1">
 							<ChevronRight className="h-3 w-3" />
-							<span className="text-foreground">{currentPage}</span>
+							<span aria-current="page" className="text-foreground">{currentPage}</span>
 						</li>
 					)}
 				</ol>

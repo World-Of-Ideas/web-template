@@ -508,6 +508,22 @@ describe("validatePostUpdateBody", () => {
 			"Published must be a boolean",
 		);
 	});
+
+	it("returns error when description is empty string", () => {
+		expect(validatePostUpdateBody({ description: "" })).toBe(
+			"Description must be a non-empty string",
+		);
+	});
+
+	it("returns error when description is too long", () => {
+		expect(validatePostUpdateBody({ description: "a".repeat(501) })).toBe(
+			"Description is too long (max 500 characters)",
+		);
+	});
+
+	it("returns null when description is valid", () => {
+		expect(validatePostUpdateBody({ description: "Valid desc" })).toBeNull();
+	});
 });
 
 describe("validatePageBody", () => {
