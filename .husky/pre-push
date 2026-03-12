@@ -1,0 +1,2 @@
+echo "==> Running E2E tests..."
+npx playwright test --max-failures=1

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getAllPages } from "@/lib/pages";
+import { getAllPageSummaries } from "@/lib/pages";
 import { PageEditor } from "@/components/admin/page-editor/page-editor";
 
 export const metadata: Metadata = {
@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default async function NewPagePage() {
-	const allPages = await getAllPages();
+	const allPages = await getAllPageSummaries();
 	const parentSlugs = allPages.map((p) => p.slug);
 
 	return (

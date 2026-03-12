@@ -1,0 +1,5 @@
+echo "==> Linting staged files..."
+npx lint-staged
+
+echo "==> Running tests..."
+npm test

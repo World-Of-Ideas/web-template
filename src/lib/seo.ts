@@ -21,8 +21,22 @@ export async function getSeoAudit(): Promise<SeoAuditItem[]> {
 	const items: SeoAuditItem[] = [];
 
 	const [allPages, allPosts] = await Promise.all([
-		db.query.pages.findMany({ where: eq(pages.published, true) }),
-		db.query.posts.findMany({ where: eq(posts.published, true) }),
+		db.select({
+			slug: pages.slug,
+			title: pages.title,
+			description: pages.description,
+			faqs: pages.faqs,
+			relatedPages: pages.relatedPages,
+			coverImage: pages.coverImage,
+		}).from(pages).where(eq(pages.published, true)).limit(1000),
+		db.select({
+			slug: posts.slug,
+			title: posts.title,
+			description: posts.description,
+			faqs: posts.faqs,
+			coverImage: posts.coverImage,
+			tags: posts.tags,
+		}).from(posts).where(eq(posts.published, true)).limit(1000),
 	]);
 
 	for (const page of allPages) {

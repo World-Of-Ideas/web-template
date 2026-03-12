@@ -55,6 +55,7 @@ export async function getGiveawayActions(entryId: number) {
 	const db = await getDb();
 	return db.query.giveawayActions.findMany({
 		where: eq(giveawayActions.entryId, entryId),
+		limit: 100,
 	});
 }
 

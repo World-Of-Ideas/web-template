@@ -40,7 +40,7 @@ export async function generateMetadata({
 			url: `${siteConfig.url}/${fullSlug}`,
 			images: page.coverImage
 				? [{ url: page.coverImage }]
-				: [{ url: `${siteConfig.url}/og-default.png` }],
+				: [{ url: `${siteConfig.url}/api/og?slug=${encodeURIComponent(fullSlug)}`, width: 1200, height: 630 }],
 		},
 		alternates: {
 			canonical: `${siteConfig.url}/${fullSlug}`,

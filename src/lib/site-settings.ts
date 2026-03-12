@@ -9,7 +9,7 @@ const CACHE_TAG = "site-settings";
 
 const DEFAULT_SOCIAL = { twitter: "", github: "", discord: "", instagram: "" };
 const DEFAULT_PRODUCT_LINKS = { appUrl: "", appStoreUrl: "", playStoreUrl: "" };
-const DEFAULT_FEATURES: Record<string, boolean> = { waitlist: true, giveaway: true, blog: true, contact: true, pricing: false, changelog: false, api: false };
+const DEFAULT_FEATURES: Record<string, boolean> = { waitlist: true, giveaway: true, blog: true, contact: true, pricing: false, changelog: false, api: false, doubleOptIn: false, maintenance: false };
 const DEFAULT_ANNOUNCEMENT: AnnouncementSettings = { enabled: false, text: "", linkUrl: "", linkText: "" };
 const DEFAULT_UI: Record<string, boolean> = { search: true, themeToggle: true };
 const DEFAULT_THEME: ThemeSettings = {

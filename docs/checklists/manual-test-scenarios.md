@@ -10,7 +10,7 @@ Each checkbox is tagged with its automated test coverage:
 - `[PARTIAL]` — Logic tested (validation, DB ops), but UI rendering or full integration not automated. Verify visually.
 - `[MANUAL]` — No automated coverage. Must be tested manually.
 
-**Automated test suite:** 458 unit/integration tests (27 files via Vitest + getPlatformProxy) + 85 E2E tests (5 Playwright specs). Run `npm test` and `npm run test:e2e` before starting manual testing.
+**Automated test suite:** 772 unit/integration tests (39 files via Vitest + getPlatformProxy) + 81 E2E tests (5 Playwright specs). Run `npm test` and `npm run test:e2e` before starting manual testing. Playwright uses `--max-failures=1` to fail fast. Pre-commit hooks (husky + lint-staged) automatically lint staged files and run unit tests; pre-push hooks run E2E tests.
 
 ---
 
@@ -186,6 +186,22 @@ Each checkbox is tagged with its automated test coverage:
 - [ ] `[AUTO]` Draft posts (published=false) not visible in listing — *blog.integration.test.ts: "getPublishedPosts" published-only*
 - [ ] `[AUTO]` Post with no tags: related posts section hidden or empty — *blog.integration.test.ts: "getRelatedPosts" empty tags*
 
+### Adjacent Posts & Reading Time
+- [ ] `[AUTO]` Prev/next navigation for middle post returns correct adjacent posts — *blog-extended.integration.test.ts: "getAdjacentPosts"*
+- [ ] `[AUTO]` Adjacent posts skip unpublished and future-scheduled posts — *blog-extended.integration.test.ts: "skips unpublished/future-scheduled"*
+- [ ] `[AUTO]` Reading time calculated from content blocks (paragraphs, lists, code, accordions, tabs) — *blog-extended.integration.test.ts: "calculateReadingTime"*
+- [ ] `[MANUAL]` Reading time displayed on post page (e.g., "2 min read")
+- [ ] `[MANUAL]` Prev/Next links render at bottom of post page
+
+### Tag Pages
+- [ ] `[AUTO]` `/blog/tag/[tag]` returns posts matching the tag — *blog-extended.integration.test.ts: "getPublishedPostsByTag"*
+- [ ] `[AUTO]` Tag page excludes draft and future-scheduled posts — *blog-extended.integration.test.ts*
+- [ ] `[AUTO]` Tag page paginates correctly — *blog-extended.integration.test.ts: "paginates results"*
+- [ ] `[AUTO]` `getAllTags` returns tags with correct counts, ordered by count DESC — *blog-extended.integration.test.ts: "getAllTags"*
+- [ ] `[MANUAL]` Tag page has breadcrumbs: Home > Blog > Tag: {tag}
+- [ ] `[MANUAL]` Tag page has dynamic OG image
+- [ ] `[MANUAL]` Tag cloud/list shows all tags with counts
+
 ### Content Scheduling
 - [ ] `[AUTO]` Create a post with `scheduledPublishAt` set to future — *blog.integration.test.ts: future-scheduled exclusion*
 - [ ] `[AUTO]` Post does NOT appear in `/blog` listing before scheduled time — *blog.integration.test.ts: "getPublishedPosts" future-scheduled exclusion*
@@ -212,6 +228,7 @@ Each checkbox is tagged with its automated test coverage:
 - [ ] `[AUTO]` Check email queue: email job queued (or sent via Resend) — *queue-consumer.test.ts: "contact_receipt" email type*
 - [ ] `[MANUAL]` Feature toggle off > 404, hidden from nav/sitemap
 - [ ] `[MANUAL]` Admin sidebar hides contact submissions section when contact disabled
+- [ ] `[MANUAL]` **CSV export**: click "Export CSV" on admin contacts page > downloads CSV with submissions
 
 ## 10. Pricing (feature flag: `pricing`)
 
@@ -309,6 +326,8 @@ Each checkbox is tagged with its automated test coverage:
 - [ ] `[MANUAL]` Includes: homepage, all enabled feature pages, published blog posts, published content pages
 - [ ] `[MANUAL]` Excludes: admin pages, API routes, disabled features, unpublished posts, noindex pages, scheduled-future content
 - [ ] `[MANUAL]` Pages with `noindex` metadata flag are excluded
+- [ ] `[AUTO]` Sitemap uses lightweight `getPublishedPostSlugs` query (slug + updatedAt only) — *blog-extended.integration.test.ts: "getPublishedPostSlugs"*
+- [ ] `[AUTO]` Content pages listed via `getPublishedContentPages` (excludes heavy columns) — *pages-extended.integration.test.ts: "getPublishedContentPages"*
 - [ ] `[MANUAL]` `/robots.txt`:
   - UAT: `Disallow: /`
   - Production: `Allow: /`, blocks `/admin`, includes sitemap URL, includes RSS feed URL
@@ -329,6 +348,18 @@ Each checkbox is tagged with its automated test coverage:
 - [ ] `[MANUAL]` Unsubscribe link in email body works
 - [ ] `[AUTO]` HTML content is properly escaped (no raw HTML injection) — *queue-consumer.test.ts: "HTML escaping" (script tags, entities)*
 - [ ] `[MANUAL]` Sender address matches FROM_EMAIL environment variable
+- [ ] `[AUTO]` Email batch queuing splits into chunks of 100 for `queue.sendBatch` — *queue.test.ts: "enqueueEmailBatch"*
+
+## 18a. Dynamic OG Images
+
+- [ ] `[MANUAL]` **Homepage**: root `opengraph-image.tsx` generates OG image with site name + description + accent color
+- [ ] `[MANUAL]` **Blog post**: `/blog/[slug]` OG image shows post title, description, tags, author, date
+- [ ] `[MANUAL]` **Blog tag page**: `/blog/tag/[tag]` OG image shows tag name in accent color
+- [ ] `[MANUAL]` **Content pages**: `GET /api/og?slug={slug}` generates OG image with page title + description
+- [ ] `[MANUAL]` All OG images return 1200x630 PNG
+- [ ] `[MANUAL]` Missing/invalid slug in `/api/og?slug=` returns fallback image (not an error)
+- [ ] `[MANUAL]` Content page metadata references `/api/og?slug=` when no cover image set
+- [ ] `[MANUAL]` Content page with cover image uses cover image as OG instead of dynamic
 
 ## 19. Cookie Consent
 
@@ -358,7 +389,7 @@ Each checkbox is tagged with its automated test coverage:
 - [ ] `[E2E]` Login with correct credentials: redirected to dashboard — *admin.spec.ts: "successful login"*
 - [ ] `[E2E]` Login with wrong password: generic error message — *admin.spec.ts: "wrong password rejection"*
 - [ ] `[MANUAL]` Login with very long password (>1000 chars): rejected by validation
-- [ ] `[AUTO]` Login rate limit: 20+ failed attempts in 15 min > subsequent attempts get 429 — *rate-limit.test.ts*
+- [ ] `[AUTO]` Login rate limit: 5+ failed attempts per IP in 1 hour > subsequent attempts get 429 — *rate-limit.test.ts*
 - [ ] `[MANUAL]` After login: session cookie is HttpOnly, Secure (prod), SameSite=Lax
 - [ ] `[AUTO]` Session expires after 24 hours (or 7-day absolute max) — *admin.test.ts: "validateSession" expiry + 7-day absolute max*
 - [ ] `[E2E]` After logout: can't access admin pages, redirected to login — *admin.spec.ts: "logout flow"*
@@ -368,10 +399,16 @@ Each checkbox is tagged with its automated test coverage:
 
 ### Dashboard
 - [ ] `[E2E]` Shows summary stats: subscriber count, post count, page count — *admin.spec.ts: "stats cards"*
+- [ ] `[AUTO]` Signup trend: daily signup counts for recent period — *dashboard.integration.test.ts: "getSignupTrend"*
+- [ ] `[AUTO]` Contact trend: daily contact submission counts — *dashboard.integration.test.ts: "getContactTrend"*
+- [ ] `[AUTO]` Top referrers: shows top referral sources ordered by count — *dashboard.integration.test.ts: "getTopReferrers"*
+- [ ] `[MANUAL]` Trend charts render visually (signup + contact line charts)
+- [ ] `[MANUAL]` Top referrers table displays correctly
 - [ ] `[MANUAL]` Recent activity or quick links render
 - [ ] `[MANUAL]` Page title doesn't duplicate site name (should be "Dashboard | Admin", not "Dashboard | Admin | SiteName")
 
 ### Post Management
+- [ ] `[AUTO]` **List uses summary query**: excludes heavy content/FAQs columns — *blog-extended.integration.test.ts: "getAllPostSummaries"*
 - [ ] `[E2E]` **List**: all posts displayed with title, status (Published/Draft/Scheduled), date — *posts.spec.ts*
 - [ ] `[MANUAL]` **Empty state**: no posts > shows "No posts yet" message with "Create your first post" prompt
 - [ ] `[E2E]` **Create**: click New Post > fill title, slug, description, cover image, tags — *posts.spec.ts: post creation*
@@ -387,8 +424,12 @@ Each checkbox is tagged with its automated test coverage:
 - [ ] `[MANUAL]` **FAQs editor**: add/edit/remove FAQ items
 - [ ] `[MANUAL]` **Tags**: add/remove tags, tags display on public post
 - [ ] `[AUTO]` **Slug validation**: duplicate slugs rejected, invalid characters rejected — *validation.test.ts: "validateSlug"*
+- [ ] `[AUTO]` **Duplicate**: duplicate a post > creates copy with `-copy` slug, `(Copy)` title, unpublished — *blog-extended.integration.test.ts: "duplicatePost"*
+- [ ] `[AUTO]` **Duplicate slug collision**: if `-copy` slug exists, appends `-copy-2`, `-copy-3`, etc. — *blog-extended.integration.test.ts*
+- [ ] `[AUTO]` **Duplicate preserves content**: FAQs, tags, description carried over — *blog-extended.integration.test.ts*
 
 ### Page Management
+- [ ] `[AUTO]` **List uses summary query**: excludes heavy content/FAQs/metadata columns — *pages-extended.integration.test.ts: "getAllPageSummaries"*
 - [ ] `[E2E]` **List**: all pages with title, slug, status, template — *pages.spec.ts*
 - [ ] `[MANUAL]` **Empty state**: only system pages > shows appropriate message
 - [ ] `[E2E]` **Create**: new page with title, slug, description, template, parent page — *pages.spec.ts*
@@ -422,6 +463,11 @@ Each checkbox is tagged with its automated test coverage:
 - [ ] `[E2E]` Subscriber list shows all subscribers with name, email, status, date — *readonly-admin.spec.ts: "Subscribers page loads"*
 - [ ] `[MANUAL]` Status filters work (active, unsubscribed, invited)
 - [ ] `[MANUAL]` Empty state: no subscribers > shows "No subscribers yet" message
+- [ ] `[AUTO]` **CSV export**: client-side CSV generation with proper escaping (commas, quotes, newlines) — *csv-export.test.ts*
+- [ ] `[MANUAL]` **Export button**: click "Export CSV" > downloads CSV file with subscriber data
+- [ ] `[MANUAL]` **CSV import**: upload CSV with email/name columns > subscribers created with unique positions
+- [ ] `[AUTO]` **Email verification**: transitions subscriber from pending to active — *waitlist-extended.integration.test.ts: "verifySubscriberEmail"*
+- [ ] `[AUTO]` **Status tracking**: returns correct status for each lifecycle stage — *waitlist-extended.integration.test.ts: "getSubscriberStatus"*
 
 ### Giveaway Management
 - [ ] `[E2E]` Entry list shows all entries — *readonly-admin.spec.ts: "Giveaway page loads"*
@@ -486,6 +532,51 @@ Each checkbox is tagged with its automated test coverage:
 - [ ] `[E2E]` `/admin/seo` loads with audit results — *readonly-admin.spec.ts: "SEO Audit loads"*
 - [ ] `[AUTO]` Shows pages missing metadata, descriptions, JSON-LD, etc. — *seo.test.ts: field auditing*
 - [ ] `[MANUAL]` Actionable links to edit pages with issues
+
+### Campaign Management
+- [ ] `[AUTO]` **List**: campaigns displayed ordered by date — *campaigns.integration.test.ts: "getCampaigns"*
+- [ ] `[AUTO]` **Create**: campaign created with draft status, sentCount=0 — *campaigns.integration.test.ts: "createCampaign"*
+- [ ] `[AUTO]` **Edit**: update subject/body — *campaigns.integration.test.ts: "updateCampaign"*
+- [ ] `[AUTO]` **Delete**: campaign removed — *campaigns.integration.test.ts: "deleteCampaign"*
+- [ ] `[AUTO]` **Send**: marks as sending, sets totalCount, targets active subscribers only — *campaigns.integration.test.ts: "markCampaignSending", "getActiveSubscriberEmails"*
+- [ ] `[AUTO]` **Send progress**: sentCount increments atomically — *campaigns.integration.test.ts: "incrementSentCount"*
+- [ ] `[AUTO]` **Send completion**: marks as sent with timestamp — *campaigns.integration.test.ts: "markCampaignSent"*
+- [ ] `[AUTO]` **Batch queue**: emails sent via `enqueueEmailBatch` in batches of 100 — *queue.test.ts: "enqueueEmailBatch"*
+- [ ] `[MANUAL]` **Campaign email received**: subscribers receive email with correct subject/body
+- [ ] `[MANUAL]` **Campaign email**: contains List-Unsubscribe header
+- [ ] `[MANUAL]` **Empty state**: no campaigns > shows "No campaigns yet"
+
+### Webhook Management
+- [ ] `[AUTO]` **List**: webhooks displayed ordered by creation date — *webhooks.integration.test.ts: "getWebhooks"*
+- [ ] `[AUTO]` **Create**: webhook with URL, events, secret — *webhooks.integration.test.ts: "createWebhook"*
+- [ ] `[AUTO]` **Edit**: update URL, events, secret, active status — *webhooks.integration.test.ts: "updateWebhook"*
+- [ ] `[AUTO]` **Delete**: webhook removed — *webhooks.integration.test.ts: "deleteWebhook"*
+- [ ] `[AUTO]` **Enable/Disable**: toggle active state — *webhooks.integration.test.ts*
+- [ ] `[AUTO]` **Fire**: matching webhooks receive signed HTTP POST — *webhooks.integration.test.ts: "fireWebhooks"*
+- [ ] `[AUTO]` **HMAC signature**: X-Webhook-Signature is valid SHA-256 hex — *webhooks.integration.test.ts*
+- [ ] `[AUTO]` **Fire-and-forget**: webhook failure doesn't break parent operation — *webhooks.integration.test.ts*
+- [ ] `[MANUAL]` **Webhook delivery**: configure test endpoint (webhook.site) > trigger event > verify delivery
+
+### Audit Log
+- [ ] `[AUTO]` **Log events**: admin actions logged with action, entity, details, IP — *audit.integration.test.ts: "logAuditEvent"*
+- [ ] `[AUTO]` **Pagination**: supports paginated retrieval — *audit.integration.test.ts: "getAuditLog"*
+- [ ] `[AUTO]` **Fire-and-forget**: logging failure doesn't break parent operation — *audit.integration.test.ts*
+- [ ] `[MANUAL]` `/admin/audit-log` loads with audit entries sorted newest first
+
+### Error Log
+- [ ] `[AUTO]` **Capture exceptions**: errors logged with message, stack, source, context — *error-tracking.integration.test.ts: "captureException"*
+- [ ] `[AUTO]` **Capture messages**: info/warning messages logged — *error-tracking.integration.test.ts: "captureMessage"*
+- [ ] `[AUTO]` **Truncation**: message limited to 1000 chars, stack to 2000 chars — *error-tracking.integration.test.ts*
+- [ ] `[AUTO]` **Cleanup**: old entries purged by age — *error-tracking.integration.test.ts: "cleanupErrorLog"*
+- [ ] `[MANUAL]` `/admin/errors` loads with error log entries
+
+### Asset Management
+- [ ] `[AUTO]` **List assets**: R2 objects listed with key, size, date, content type — *assets.test.ts: "listAssets"*
+- [ ] `[AUTO]` **List with prefix**: filtering by prefix works — *assets.test.ts*
+- [ ] `[AUTO]` **Delete asset**: removes from R2 — *assets.test.ts: "deleteAsset"*
+- [ ] `[AUTO]` **Public URL**: generates correct URL — *assets.test.ts: "getAssetPublicUrl"*
+- [ ] `[MANUAL]` `/admin/assets` loads with asset browser
+- [ ] `[MANUAL]` Delete confirmation dialog works
 
 ### File Upload
 - [ ] `[AUTO]` Upload a valid WebP image: success — *r2.test.ts: "validateUpload" image types, "validateMagicBytes" WebP*

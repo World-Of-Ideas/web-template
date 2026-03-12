@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { getAllPages, isSystemPage } from "@/lib/pages";
+import { getAllPageSummaries, isSystemPage } from "@/lib/pages";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -60,7 +60,7 @@ function buildTree(
 }
 
 export default async function PagesPage() {
-	const allPages = await getAllPages();
+	const allPages = await getAllPageSummaries();
 
 	const systemPages = allPages.filter((p) => isSystemPage(p.slug));
 	const contentPages = buildTree(

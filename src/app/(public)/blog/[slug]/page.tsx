@@ -1,17 +1,19 @@
 import type { Metadata } from "next";
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { siteConfig } from "@/config/site";
 import { getSiteSettings } from "@/lib/site-settings";
-import { getPublishedPostBySlug } from "@/lib/blog";
+import { getPublishedPostBySlug, getAdjacentPosts, calculateReadingTime } from "@/lib/blog";
 import { ContentRenderer } from "@/components/content/content-renderer";
 import { FaqSection } from "@/components/layout/faq-section";
 import { RelatedPosts } from "@/components/blog/related-posts";
+import { SocialShare } from "@/components/blog/social-share";
 import { Breadcrumbs } from "@/components/layout/breadcrumbs";
 import { JsonLd } from "@/components/shared/json-ld";
 import { isSafeUrl } from "@/lib/utils";
 import { normalizeImageSrc } from "@/lib/r2";
-import type { FAQ } from "@/types/content";
+import type { FAQ, ContentBlock } from "@/types/content";
 
 export async function generateMetadata({
 	params,
@@ -68,9 +70,13 @@ export default async function BlogPostPage({
 
 	const tags = (post.tags ?? []) as string[];
 	const faqs = (post.faqs ?? []) as FAQ[];
+	const readingTime = calculateReadingTime(post.content as ContentBlock[]);
+	const adjacent = await getAdjacentPosts(post.slug);
 
 	return (
 		<>
+			{adjacent.prev && <link rel="prev" href={`${siteConfig.url}/blog/${adjacent.prev.slug}`} />}
+			{adjacent.next && <link rel="next" href={`${siteConfig.url}/blog/${adjacent.next.slug}`} />}
 			<JsonLd
 				data={{
 					"@context": "https://schema.org",
@@ -122,16 +128,18 @@ export default async function BlogPostPage({
 								})}
 							</time>
 						)}
+						<span>{readingTime} min read</span>
 					</div>
 					{tags.length > 0 && (
 						<div className="mt-4 flex flex-wrap gap-2">
 							{tags.map((tag) => (
-								<span key={tag} className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+								<Link key={tag} href={`/blog/tag/${encodeURIComponent(tag)}`} className="rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary hover:bg-primary/20 transition-colors">
 									{tag}
-								</span>
+								</Link>
 							))}
 						</div>
 					)}
+					<SocialShare url={`${siteConfig.url}/blog/${post.slug}`} title={post.title} />
 				</header>
 
 				{post.coverImage && isSafeUrl(post.coverImage) && (
@@ -149,6 +157,23 @@ export default async function BlogPostPage({
 					<ContentRenderer blocks={post.content} />
 				</div>
 			</article>
+
+			{(adjacent.prev || adjacent.next) && (
+				<nav className="mx-auto max-w-[744px] px-4 sm:px-6 mt-12 flex items-center justify-between gap-4" aria-label="Post navigation">
+					{adjacent.prev ? (
+						<Link href={`/blog/${adjacent.prev.slug}`} className="group flex flex-col items-start text-left">
+							<span className="text-xs text-muted-foreground">Previous</span>
+							<span className="text-sm font-medium group-hover:text-primary transition-colors line-clamp-1">{adjacent.prev.title}</span>
+						</Link>
+					) : <div />}
+					{adjacent.next ? (
+						<Link href={`/blog/${adjacent.next.slug}`} className="group flex flex-col items-end text-right">
+							<span className="text-xs text-muted-foreground">Next</span>
+							<span className="text-sm font-medium group-hover:text-primary transition-colors line-clamp-1">{adjacent.next.title}</span>
+						</Link>
+					) : <div />}
+				</nav>
+			)}
 
 			{faqs.length > 0 && <FaqSection faqs={faqs} />}
 			{tags.length > 0 && <RelatedPosts currentSlug={post.slug} tags={tags} />}

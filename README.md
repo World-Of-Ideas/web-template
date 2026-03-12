@@ -56,11 +56,11 @@ src/
 ├── config/             # Navigation, theme presets, site config
 ├── db/                 # Schema, seed data
 ├── features/           # Product-specific features (template-safe)
-├── lib/                # Business logic (27 files)
+├── lib/                # Business logic (34 files)
 └── types/              # TypeScript interfaces
 docs/
 ├── plan.md             # Implementation plan
-├── audit/              # Security audit reports (rounds 3-6)
+├── audit/              # Security audit reports (rounds 3-8)
 ├── decisions/          # Architecture decision records
 └── checklists/         # Clone, deploy, new feature, new page
 ```

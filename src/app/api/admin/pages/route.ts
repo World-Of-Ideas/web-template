@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import { apiSuccess, apiError } from "@/lib/api";
 import { requireAdminSession } from "@/lib/admin-auth";
-import { getAllPages, createPage, isReservedSlug } from "@/lib/pages";
+import { getAllPageSummaries, createPage, isReservedSlug } from "@/lib/pages";
 import { validatePageBody } from "@/lib/validation";
 
 export async function GET() {
@@ -9,7 +9,7 @@ export async function GET() {
 		return apiError("UNAUTHORIZED", "Not authenticated");
 	}
 
-	const pages = await getAllPages();
+	const pages = await getAllPageSummaries();
 	return apiSuccess(pages);
 }
 

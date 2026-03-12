@@ -8,6 +8,7 @@ export async function createSubscriber(data: {
 	referralCode: string;
 	referredBy?: string;
 	source?: string;
+	status?: string;
 }) {
 	const db = await getDb();
 
@@ -21,6 +22,7 @@ export async function createSubscriber(data: {
 			referralCode: data.referralCode,
 			referredBy: data.referredBy ?? null,
 			source: data.source ?? null,
+			status: data.status ?? "active",
 			position: sql`(SELECT COALESCE(MAX(${subscribers.position}), 0) + 1 FROM ${subscribers})`,
 		})
 		.returning();
@@ -35,6 +37,7 @@ export async function createSubscriberWithReferral(data: {
 	referralCode: string;
 	referredBy: string;
 	source?: string;
+	status?: string;
 }) {
 	const db = await getDb();
 
@@ -46,6 +49,7 @@ export async function createSubscriberWithReferral(data: {
 			referralCode: data.referralCode,
 			referredBy: data.referredBy,
 			source: data.source ?? null,
+			status: data.status ?? "active",
 			position: sql`(SELECT COALESCE(MAX(${subscribers.position}), 0) + 1 FROM ${subscribers})`,
 		})
 		.returning();
@@ -112,6 +116,23 @@ export async function getSubscribers(page: number, limit: number) {
 	]);
 
 	return { items, total };
+}
+
+export async function verifySubscriberEmail(email: string) {
+	const db = await getDb();
+	await db
+		.update(subscribers)
+		.set({ status: "active" })
+		.where(eq(subscribers.email, email));
+}
+
+export async function getSubscriberStatus(email: string): Promise<string | null> {
+	const db = await getDb();
+	const sub = await db.query.subscribers.findFirst({
+		where: eq(subscribers.email, email),
+		columns: { status: true },
+	});
+	return sub?.status ?? null;
 }
 
 // --- Unsubscribe token helpers (HMAC-SHA256) ---

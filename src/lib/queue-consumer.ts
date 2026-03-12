@@ -86,6 +86,54 @@ export async function handleEmailQueue(
 					break;
 				}
 
+				case "waitlist_admin_notification": {
+					const name = escapeHtml(job.payload.name);
+					const email = escapeHtml(job.payload.email);
+					const sourceLine = job.payload.source
+						? `<p><strong>Source:</strong> ${escapeHtml(job.payload.source)}</p>`
+						: "";
+					await sendEmail(env.RESEND_API_KEY, {
+						from: env.FROM_EMAIL,
+						to: env.CONTACT_EMAIL,
+						subject: `New waitlist signup: ${escapeHtml(job.payload.name)}`,
+						html: `<p><strong>Name:</strong> ${name}</p>
+<p><strong>Email:</strong> ${email}</p>
+<p><strong>Position:</strong> #${job.payload.position}</p>
+${sourceLine}`,
+					});
+					break;
+				}
+
+				case "campaign_email": {
+					const headers = await buildUnsubscribeHeaders(job.payload.to, env);
+					await sendEmail(env.RESEND_API_KEY, {
+						from: env.FROM_EMAIL,
+						to: job.payload.to,
+						subject: job.payload.subject,
+						html: job.payload.html,
+						headers,
+					});
+					break;
+				}
+
+				case "email_verification": {
+					const name = escapeHtml(job.payload.name);
+					const secret = (env as unknown as Record<string, unknown>).UNSUBSCRIBE_SECRET as string;
+					// Prefix email with "verify:" to produce a different HMAC than unsubscribe tokens
+					const verifyToken = await generateUnsubscribeToken("verify:" + job.payload.email, secret);
+					const verifyUrl = `${env.SITE_URL}/api/verify-email?email=${encodeURIComponent(job.payload.email)}&token=${encodeURIComponent(verifyToken)}`;
+					await sendEmail(env.RESEND_API_KEY, {
+						from: env.FROM_EMAIL,
+						to: job.payload.email,
+						subject: "Verify your email to join the waitlist",
+						html: `<p>Hi ${name},</p>
+<p>Please verify your email to complete your waitlist signup:</p>
+<p><a href="${escapeHtml(verifyUrl)}">Verify Email</a></p>
+<p>If you didn't sign up, you can safely ignore this email.</p>`,
+					});
+					break;
+				}
+
 				default:
 					console.error("Unknown email job type encountered");
 					message.retry();

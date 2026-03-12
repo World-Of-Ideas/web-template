@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { apiSuccess, apiError } from "@/lib/api";
 import { requireAdminSession } from "@/lib/admin-auth";
 import { getSiteSettingsDirect } from "@/lib/site-settings";
-import { getAllPosts, createPost } from "@/lib/blog";
+import { getAllPostSummaries, createPost } from "@/lib/blog";
 import { validatePostBody } from "@/lib/validation";
 
 export async function GET() {
@@ -13,7 +13,7 @@ export async function GET() {
 		return apiError("NOT_FOUND", "Blog feature is not enabled");
 	}
 
-	const posts = await getAllPosts();
+	const posts = await getAllPostSummaries();
 	return apiSuccess(posts);
 }
 

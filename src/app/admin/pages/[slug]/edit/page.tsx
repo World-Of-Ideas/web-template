@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getPageBySlug, getAllPages, isSystemPage } from "@/lib/pages";
+import { getPageBySlug, getAllPageSummaries, isSystemPage } from "@/lib/pages";
 import { PageEditor } from "@/components/admin/page-editor/page-editor";
 
 export const metadata: Metadata = {
@@ -21,7 +21,7 @@ export default async function EditPagePage({
 	}
 
 	const isSystem = isSystemPage(slug);
-	const allPages = await getAllPages();
+	const allPages = await getAllPageSummaries();
 	const parentSlugs = allPages.map((p) => p.slug);
 
 	return (

@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { siteConfig } from "@/config/site";
-import { getPublishedPosts } from "@/lib/blog";
+import { getPublishedPostSlugs, getAllTags } from "@/lib/blog";
 import { getPublishedContentPages, isSystemPage } from "@/lib/pages";
 import { getSiteSettingsDirect } from "@/lib/site-settings";
 
@@ -94,13 +94,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
 	// Published blog posts
 	if (settings.features.blog) {
-		const { items: posts } = await getPublishedPosts(1, 1000);
+		const posts = await getPublishedPostSlugs(1000);
 		for (const post of posts) {
 			entries.push({
 				url: `${baseUrl}/blog/${post.slug}`,
 				lastModified: post.updatedAt ? new Date(post.updatedAt) : new Date(),
 				changeFrequency: "weekly",
 				priority: 0.7,
+			});
+		}
+
+		// Tag archive pages
+		const tags = await getAllTags();
+		for (const { tag } of tags) {
+			entries.push({
+				url: `${baseUrl}/blog/tag/${encodeURIComponent(tag)}`,
+				lastModified: new Date(),
+				changeFrequency: "weekly",
+				priority: 0.5,
 			});
 		}
 	}

@@ -9,9 +9,11 @@ import { enqueueEmail } from "@/lib/queue";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sendMetaConversionEvent, sendGaConversionEvent } from "@/lib/tracking";
 import { isValidEmail, safeParseJson, validateLength } from "@/lib/validation";
+import { fireWebhooks } from "@/lib/webhooks";
 
 export async function POST(request: NextRequest) {
-	if (!(await getSiteSettingsDirect()).features.waitlist) {
+	const settings = await getSiteSettingsDirect();
+	if (!settings.features.waitlist) {
 		return apiError("NOT_FOUND", "Resource not found");
 	}
 
@@ -60,9 +62,24 @@ export async function POST(request: NextRequest) {
 			return apiError("TURNSTILE_FAILED", "Turnstile verification failed");
 		}
 
+		// Check double opt-in feature flag
+		const isDoubleOptIn = !!settings.features.doubleOptIn;
+
 		// Check for existing subscriber
 		const existing = await getSubscriberByEmail(email);
 		if (existing) {
+			// If double opt-in and subscriber is pending, resend verification email
+			if (isDoubleOptIn && existing.status === "pending") {
+				try {
+					await enqueueEmail(env.EMAIL_QUEUE, {
+						type: "email_verification",
+						payload: { email, name: existing.name },
+					});
+				} catch {
+					// Queue may not be available in local dev
+				}
+				return apiSuccess({ referralCode: existing.referralCode, existing: true });
+			}
 			return apiSuccess({ referralCode: existing.referralCode, existing: true });
 		}
 
@@ -71,6 +88,7 @@ export async function POST(request: NextRequest) {
 		for (let attempt = 0; attempt < 3; attempt++) {
 			const referralCode = generateReferralCode();
 			try {
+				const status = isDoubleOptIn ? "pending" : undefined;
 				subscriber = ref
 					? await createSubscriberWithReferral({
 						email,
@@ -78,12 +96,14 @@ export async function POST(request: NextRequest) {
 						referralCode,
 						referredBy: ref,
 						source,
+						status,
 					})
 					: await createSubscriber({
 						email,
 						name,
 						referralCode,
 						source,
+						status,
 					});
 				break;
 			} catch (err) {
@@ -102,20 +122,51 @@ export async function POST(request: NextRequest) {
 		}
 		if (!subscriber) throw new Error("Failed to create subscriber");
 
-		// Queue confirmation email
+		// Queue confirmation or verification email depending on double opt-in
+		try {
+			if (isDoubleOptIn) {
+				await enqueueEmail(env.EMAIL_QUEUE, {
+					type: "email_verification",
+					payload: { email, name },
+				});
+			} else {
+				await enqueueEmail(env.EMAIL_QUEUE, {
+					type: "waitlist_confirmation",
+					payload: {
+						email,
+						name,
+						position: subscriber.position,
+						referralCode: subscriber.referralCode,
+					},
+				});
+			}
+		} catch {
+			// Queue may not be available in local dev — don't fail the signup
+		}
+
+		// Queue admin notification
 		try {
 			await enqueueEmail(env.EMAIL_QUEUE, {
-				type: "waitlist_confirmation",
+				type: "waitlist_admin_notification",
 				payload: {
 					email,
 					name,
 					position: subscriber.position,
-					referralCode: subscriber.referralCode,
+					source: source ?? undefined,
 				},
 			});
 		} catch {
-			// Queue may not be available in local dev — don't fail the signup
+			// Queue may not be available in local dev
 		}
+
+		// Fire webhooks (fire-and-forget)
+		fireWebhooks("waitlist.signup", {
+			email,
+			name,
+			position: subscriber.position,
+			referralCode: subscriber.referralCode,
+			source: source ?? null,
+		}).catch(() => {});
 
 		const eventId = crypto.randomUUID();
 

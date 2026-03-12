@@ -2,10 +2,10 @@
 
 Use this checklist when adding any new feature to the webapp.
 
-## Planning (in webapp-plan)
+## Planning
 
 - [ ] Write a feature description in `docs/` or update `docs/plan.md`
-- [ ] If it involves an architecture choice, create a decision record in `decisions/`
+- [ ] If it involves an architecture choice, create a decision record in `docs/decisions/`
 - [ ] Identify which Cloudflare bindings are needed (D1, R2, Queues, KV, etc.)
 - [ ] Identify if new wrangler bindings are needed in `wrangler.jsonc`
 - [ ] Identify if new Terraform resources are needed in `webapp-tf`
@@ -34,7 +34,7 @@ Use this checklist when adding any new feature to the webapp.
 
 ## Implementation
 
-- [ ] Follow existing patterns — check `CLAUDE.md` in webapp-plan for architecture rules
+- [ ] Follow existing patterns — check `CLAUDE.md` for architecture rules
 - [ ] Server components by default, `"use client"` only where interactivity needed
 - [ ] Use Drizzle for all DB queries — no raw SQL
 - [ ] Use `getCloudflareContext()` for all Cloudflare bindings

@@ -3,6 +3,8 @@ import { getSiteSettings } from "@/lib/site-settings";
 import { getSubscriberCount } from "@/lib/waitlist";
 import { getPostCount } from "@/lib/blog";
 import { getContactCount } from "@/lib/contact";
+import { getSignupTrend, getContactTrend, getTopReferrers } from "@/lib/dashboard";
+import { SignupChart } from "@/components/admin/signup-chart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export const metadata: Metadata = {
@@ -33,10 +35,13 @@ function StatsCard({
 export default async function DashboardPage() {
 	const settings = await getSiteSettings();
 
-	const [postCount, contactCount, subscriberCount] = await Promise.all([
+	const [postCount, contactCount, subscriberCount, signupTrend, contactTrend, topReferrers] = await Promise.all([
 		getPostCount(),
 		getContactCount(),
 		settings.features.waitlist ? getSubscriberCount() : Promise.resolve(0),
+		settings.features.waitlist ? getSignupTrend(30) : Promise.resolve([]),
+		getContactTrend(30),
+		settings.features.waitlist ? getTopReferrers(5) : Promise.resolve([]),
 	]);
 
 	return (
@@ -53,6 +58,48 @@ export default async function DashboardPage() {
 					value={contactCount}
 				/>
 			</div>
+
+			<div className="grid gap-6 lg:grid-cols-2">
+				{settings.features.waitlist && (
+					<Card>
+						<CardHeader>
+							<CardTitle className="text-sm font-medium">Signups (Last 30 Days)</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<SignupChart data={signupTrend} label="signup" />
+						</CardContent>
+					</Card>
+				)}
+				<Card>
+					<CardHeader>
+						<CardTitle className="text-sm font-medium">Contact Submissions (Last 30 Days)</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<SignupChart data={contactTrend} label="contact" />
+					</CardContent>
+				</Card>
+			</div>
+
+			{settings.features.waitlist && topReferrers.length > 0 && (
+				<Card>
+					<CardHeader>
+						<CardTitle className="text-sm font-medium">Top Referrers</CardTitle>
+					</CardHeader>
+					<CardContent>
+						<div className="space-y-3">
+							{topReferrers.map((r) => (
+								<div key={r.referralCode} className="flex items-center justify-between text-sm">
+									<div>
+										<span className="font-medium">{r.name}</span>
+										<span className="ml-2 text-muted-foreground">{r.email}</span>
+									</div>
+									<span className="font-semibold">{r.referralCount} referrals</span>
+								</div>
+							))}
+						</div>
+					</CardContent>
+				</Card>
+			)}
 		</div>
 	);
 }

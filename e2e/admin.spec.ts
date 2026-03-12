@@ -41,7 +41,7 @@ test.describe("Admin dashboard", () => {
 		await page.goto("/admin/dashboard");
 		await page.waitForLoadState("domcontentloaded");
 		await expect(page.getByText("Published Posts")).toBeVisible();
-		await expect(page.getByText("Contact Submissions")).toBeVisible();
+		await expect(page.getByText("Contact Submissions", { exact: true })).toBeVisible();
 	});
 
 	test("sidebar is visible with nav links", async ({ page }) => {

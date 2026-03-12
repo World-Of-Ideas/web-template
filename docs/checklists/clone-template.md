@@ -6,7 +6,7 @@ Use this checklist when cloning the webapp template for a new product launch sit
 
 - [ ] Copy `webapp` → `{product}-webapp`
 - [ ] Copy `webapp-tf` → `{product}-webapp-tf`
-- [ ] Copy `webapp-plan` → `{product}-webapp-plan` (optional — or just start fresh)
+- [ ] Planning docs are in `webapp/docs/` — no separate plan repo needed
 - [ ] Initialize git in each new repo
 
 ## 2. Update Terraform (`{product}-webapp-tf`)
@@ -30,7 +30,7 @@ After deploying and seeding, configure via **Admin > Settings**:
 - [ ] `author` — company name
 - [ ] `productLinks` — appUrl, appStoreUrl, playStoreUrl (as applicable)
 - [ ] `social` — twitter, github, discord, instagram (as applicable)
-- [ ] `features` — enable/disable waitlist, giveaway, blog, contact, pricing, changelog, api
+- [ ] `features` — enable/disable waitlist, giveaway, blog, contact, pricing, changelog, api, doubleOptIn, maintenance
 - [ ] `theme` — accent color, font, component variants, or select a preset
 
 ## 4. Update Navigation Config (`src/config/navigation.ts`)

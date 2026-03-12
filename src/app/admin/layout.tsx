@@ -17,11 +17,17 @@ const sidebarLinks: AdminSidebarLink[] = [
 	{ label: "Posts", href: "/admin/posts", feature: "blog" },
 	{ label: "Pages", href: "/admin/pages" },
 	{ label: "Subscribers", href: "/admin/subscribers", feature: "waitlist" },
+	{ label: "Contacts", href: "/admin/contacts", feature: "contact" },
+	{ label: "Campaigns", href: "/admin/campaigns", feature: "waitlist" },
 	{ label: "Giveaway", href: "/admin/giveaway", feature: "giveaway" },
+	{ label: "Assets", href: "/admin/assets" },
+	{ label: "Webhooks", href: "/admin/webhooks" },
 	{ label: "Tracking", href: "/admin/tracking" },
 	{ label: "Redirects", href: "/admin/redirects" },
 	{ label: "Settings", href: "/admin/settings" },
 	{ label: "SEO Audit", href: "/admin/seo" },
+	{ label: "Audit Log", href: "/admin/audit-log" },
+	{ label: "Error Log", href: "/admin/errors" },
 ];
 
 export default async function AdminLayout({

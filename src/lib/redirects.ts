@@ -13,6 +13,7 @@ export async function getAllRedirects() {
 	const db = await getDb();
 	return db.query.redirects.findMany({
 		orderBy: (r, { desc }) => [desc(r.createdAt)],
+		limit: 500,
 	});
 }
 

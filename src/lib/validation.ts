@@ -324,6 +324,32 @@ export function validateRedirectUpdateBody(body: unknown): string | null {
 	return null;
 }
 
+/** Validate a campaign creation body. Returns error message or null. */
+export function validateCampaignBody(body: unknown): string | null {
+	if (!body || typeof body !== "object") return "Invalid request body";
+	const b = body as Record<string, unknown>;
+	if (typeof b.subject !== "string" || !b.subject.trim()) return "Subject is required";
+	if (b.subject.length > 200) return "Subject is too long (max 200 characters)";
+	if (typeof b.body !== "string" || !b.body.trim()) return "Body is required";
+	if (b.body.length > 50000) return "Body is too long (max 50000 characters)";
+	return null;
+}
+
+/** Validate a campaign update body. Returns error message or null. */
+export function validateCampaignUpdateBody(body: unknown): string | null {
+	if (!body || typeof body !== "object") return "Invalid request body";
+	const b = body as Record<string, unknown>;
+	if (b.subject !== undefined) {
+		if (typeof b.subject !== "string" || !b.subject.trim()) return "Subject must be a non-empty string";
+		if (b.subject.length > 200) return "Subject is too long (max 200 characters)";
+	}
+	if (b.body !== undefined) {
+		if (typeof b.body !== "string" || !b.body.trim()) return "Body must be a non-empty string";
+		if (b.body.length > 50000) return "Body is too long (max 50000 characters)";
+	}
+	return null;
+}
+
 /** Validate an R2 upload path. Returns error message or null. */
 export function validateR2Path(path: string): string | null {
 	if (path.includes("..")) {

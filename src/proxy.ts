@@ -19,6 +19,47 @@ export async function proxy(request: NextRequest) {
 		}
 	}
 
+	// Maintenance mode — block public pages when enabled
+	if (!pathname.startsWith("/admin") && !pathname.startsWith("/api") && !pathname.startsWith("/_next")) {
+		try {
+			const { getSiteSettingsDirect } = await import("@/lib/site-settings");
+			const settings = await getSiteSettingsDirect();
+			if (settings.features.maintenance) {
+				return new NextResponse(
+					`<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Under Maintenance</title>
+  <style>
+    body { font-family: system-ui, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; margin: 0; background: #fafafa; color: #111; }
+    .container { text-align: center; padding: 2rem; max-width: 480px; }
+    h1 { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.5rem; }
+    p { color: #666; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>We&rsquo;ll Be Right Back</h1>
+    <p>We&rsquo;re performing scheduled maintenance. Please check back shortly.</p>
+  </div>
+</body>
+</html>`,
+					{
+						status: 503,
+						headers: {
+							"Content-Type": "text/html; charset=utf-8",
+							"Retry-After": "3600",
+						},
+					},
+				);
+			}
+		} catch {
+			// Continue if settings lookup fails
+		}
+	}
+
 	// Admin route protection (first line of defense — routes still validate sessions)
 	const isAdminPage = pathname.startsWith("/admin") && pathname !== "/admin";
 	const isAdminApi = pathname.startsWith("/api/admin") && pathname !== "/api/admin/login";

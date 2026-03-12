@@ -66,6 +66,7 @@ export const breadcrumbLabels: Record<string, string> = {
 	contact: "Contact",
 	terms: "Terms of Use",
 	privacy: "Privacy Policy",
+	tag: "Tag",
 	admin: "Admin",
 };
 

@@ -50,6 +50,7 @@ export async function getChildPages(parentSlug: string) {
 			or(isNull(pages.scheduledPublishAt), lte(pages.scheduledPublishAt, sql`datetime('now')`)),
 		),
 		orderBy: (p, { asc }) => [asc(p.sortOrder)],
+		limit: 100,
 	});
 }
 
@@ -60,12 +61,29 @@ export async function getAllPages() {
 	});
 }
 
+/** Lightweight page listing for admin — excludes heavy content/faqs/metadata columns. */
+export async function getAllPageSummaries() {
+	const db = await getDb();
+	return db.select({
+		slug: pages.slug,
+		parentSlug: pages.parentSlug,
+		title: pages.title,
+		description: pages.description,
+		layout: pages.layout,
+		published: pages.published,
+		scheduledPublishAt: pages.scheduledPublishAt,
+		sortOrder: pages.sortOrder,
+	}).from(pages).orderBy(pages.sortOrder).limit(5000);
+}
+
 export async function getPublishedContentPages() {
 	const db = await getDb();
-	return db.query.pages.findMany({
-		where: isPageLive,
-		orderBy: (p, { asc }) => [asc(p.sortOrder)],
-	});
+	return db.select({
+		slug: pages.slug,
+		title: pages.title,
+		updatedAt: pages.updatedAt,
+		metadata: pages.metadata,
+	}).from(pages).where(isPageLive).orderBy(pages.sortOrder);
 }
 
 export async function createPage(data: {

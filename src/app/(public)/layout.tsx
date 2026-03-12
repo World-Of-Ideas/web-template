@@ -6,6 +6,7 @@ import { MetaPixel } from "@/components/shared/meta-pixel";
 import { GoogleAnalytics } from "@/components/shared/google-analytics";
 import { GoogleTagManager } from "@/components/shared/google-tag-manager";
 import { CookieConsent } from "@/components/shared/cookie-consent";
+import { BackToTop } from "@/components/shared/back-to-top";
 
 export default async function PublicLayout({
 	children,
@@ -25,6 +26,7 @@ export default async function PublicLayout({
 			<GoogleTagManager />
 			<CookieConsent />
 			{settings.ui.search && <SearchDialog />}
+			<BackToTop />
 		</>
 	);
 }

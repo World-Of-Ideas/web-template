@@ -17,7 +17,7 @@ describe("site-settings", () => {
 			expect(settings.author).toBe("");
 			expect(settings.social).toEqual({ twitter: "", github: "", discord: "", instagram: "" });
 			expect(settings.productLinks).toEqual({ appUrl: "", appStoreUrl: "", playStoreUrl: "" });
-			expect(settings.features).toEqual({ waitlist: true, giveaway: true, blog: true, contact: true, pricing: false, changelog: false, api: false });
+			expect(settings.features).toEqual({ waitlist: true, giveaway: true, blog: true, contact: true, pricing: false, changelog: false, api: false, doubleOptIn: false, maintenance: false });
 			expect(settings.ui).toEqual({ search: true, themeToggle: true });
 			expect(settings.theme.preset).toBe("bold");
 			expect(settings.theme.accentColor).toBe("#9747ff");
@@ -66,7 +66,7 @@ describe("site-settings", () => {
 			expect(settings.name).toBe("Broken JSON");
 			// Falls back to defaults for invalid JSON
 			expect(settings.social).toEqual({ twitter: "", github: "", discord: "", instagram: "" });
-			expect(settings.features).toEqual({ waitlist: true, giveaway: true, blog: true, contact: true, pricing: false, changelog: false, api: false });
+			expect(settings.features).toEqual({ waitlist: true, giveaway: true, blog: true, contact: true, pricing: false, changelog: false, api: false, doubleOptIn: false, maintenance: false });
 			expect(settings.theme.preset).toBe("bold");
 			expect(settings.announcement).toEqual({ enabled: false, text: "", linkUrl: "", linkText: "" });
 		});

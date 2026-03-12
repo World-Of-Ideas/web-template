@@ -8,6 +8,7 @@ import { enqueueEmail } from "@/lib/queue";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { sendMetaConversionEvent, sendGaConversionEvent } from "@/lib/tracking";
 import { isValidEmail, safeParseJson, validateLength } from "@/lib/validation";
+import { fireWebhooks } from "@/lib/webhooks";
 
 export async function POST(request: NextRequest) {
 	if (!(await getSiteSettingsDirect()).features.contact) {
@@ -70,6 +71,9 @@ export async function POST(request: NextRequest) {
 		} catch {
 			// Queue may not be available in local dev
 		}
+
+		// Fire webhooks (fire-and-forget)
+		fireWebhooks("contact.submission", { name, email, message, source: source ?? null }).catch(() => {});
 
 		const eventId = crypto.randomUUID();
 

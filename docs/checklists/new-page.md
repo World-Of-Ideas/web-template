@@ -35,7 +35,7 @@ Use this checklist every time you add a new page to the webapp.
 
 ## Feature Toggle
 
-- [ ] If the page belongs to a toggleable feature, add `notFound()` guard checking `siteConfig.features`
+- [ ] If the page belongs to a toggleable feature, add `notFound()` guard checking `settings.features`
 - [ ] Ensure sitemap.ts respects the feature toggle for this page
 
 ## Navigation

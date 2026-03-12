@@ -14,7 +14,7 @@ export const subscribers = sqliteTable(
 		referredBy: text("referred_by"),
 		referralCount: integer("referral_count").notNull().default(0),
 		position: integer("position").notNull(),
-		status: text("status").notNull().default("active"), // "active" | "unsubscribed" | "invited"
+		status: text("status").notNull().default("active"), // "active" | "pending" | "unsubscribed" | "invited"
 		source: text("source"),
 		createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
 	},
@@ -165,6 +165,80 @@ export const redirects = sqliteTable(
 	},
 	(table) => [
 		index("idx_redirects_from").on(table.fromPath),
+	],
+);
+
+// --- Audit Log ---
+
+export const auditLog = sqliteTable(
+	"audit_log",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		action: text("action").notNull(), // "post.create", "post.update", "post.delete", "page.update", "settings.update", "login", "logout", etc.
+		entityType: text("entity_type"), // "post", "page", "settings", "session"
+		entityId: text("entity_id"), // ID or slug of affected entity
+		details: text("details"), // JSON with additional context
+		ipAddress: text("ip_address"),
+		createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+	},
+	(table) => [
+		index("idx_audit_created").on(table.createdAt),
+		index("idx_audit_entity").on(table.entityType, table.entityId),
+	],
+);
+
+// --- Webhooks ---
+
+export const webhooks = sqliteTable(
+	"webhooks",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		url: text("url").notNull(),
+		events: text("events", { mode: "json" }).$type<string[]>().notNull(), // ["waitlist.signup", "giveaway.entry", "contact.submission"]
+		secret: text("secret").notNull(), // HMAC signing secret
+		active: integer("active", { mode: "boolean" }).notNull().default(true),
+		createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+		updatedAt: text("updated_at").notNull().default(sql`(datetime('now'))`),
+	},
+	(table) => [
+		index("idx_webhooks_active").on(table.active),
+	],
+);
+
+// --- Email Campaigns ---
+
+export const emailCampaigns = sqliteTable(
+	"email_campaigns",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		subject: text("subject").notNull(),
+		body: text("body").notNull(), // HTML body
+		status: text("status").notNull().default("draft"), // "draft" | "sending" | "sent" | "failed"
+		sentCount: integer("sent_count").notNull().default(0),
+		totalCount: integer("total_count").notNull().default(0),
+		createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+		sentAt: text("sent_at"),
+	},
+	(table) => [
+		index("idx_campaigns_status").on(table.status),
+	],
+);
+
+// --- Error Log ---
+
+export const errorLog = sqliteTable(
+	"error_log",
+	{
+		id: integer("id").primaryKey({ autoIncrement: true }),
+		level: text("level").notNull().default("error"), // "error" | "warning" | "info"
+		message: text("message").notNull(),
+		context: text("context"), // JSON with stack trace, request info, etc.
+		source: text("source"), // "api", "queue", "render", etc.
+		createdAt: text("created_at").notNull().default(sql`(datetime('now'))`),
+	},
+	(table) => [
+		index("idx_error_log_created").on(table.createdAt),
+		index("idx_error_log_level").on(table.level),
 	],
 );
 
