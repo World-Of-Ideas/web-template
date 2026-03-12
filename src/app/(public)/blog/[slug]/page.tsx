@@ -154,7 +154,7 @@ export default async function BlogPostPage({
 				)}
 
 				<div className="mt-8">
-					<ContentRenderer blocks={post.content} />
+					<ContentRenderer blocks={post.content} features={settings.features} />
 				</div>
 			</article>
 

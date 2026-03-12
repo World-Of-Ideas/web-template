@@ -23,9 +23,10 @@ interface ListingTemplateProps {
 	content: ContentBlock[] | null;
 	childPages: ChildPage[];
 	cardVariant?: ThemeSettings["postCardVariant"];
+	features?: Record<string, boolean>;
 }
 
-export function ListingTemplate({ title, description, content, childPages, cardVariant = "bordered" }: ListingTemplateProps) {
+export function ListingTemplate({ title, description, content, childPages, cardVariant = "bordered", features }: ListingTemplateProps) {
 	return (
 		<div className="mx-auto max-w-[1128px] px-4 py-12 sm:px-6 sm:py-16">
 			<h1 className="text-3xl font-normal tracking-tight sm:text-4xl md:text-5xl">
@@ -40,7 +41,7 @@ export function ListingTemplate({ title, description, content, childPages, cardV
 
 			{content && content.length > 0 && (
 				<div className="mt-8 max-w-3xl">
-					<ContentRenderer blocks={content} />
+					<ContentRenderer blocks={content} features={features} />
 				</div>
 			)}
 

@@ -57,7 +57,7 @@ export default async function TermsPage() {
 
 				{page?.content ? (
 					<div className="mt-8">
-						<ContentRenderer blocks={page.content} />
+						<ContentRenderer blocks={page.content} features={settings.features} />
 					</div>
 				) : (
 					<p className="mt-8 text-muted-foreground">
@@ -67,7 +67,7 @@ export default async function TermsPage() {
 			</div>
 
 			{faqs.length > 0 && <FaqSection faqs={faqs} />}
-			{relatedPages.length > 0 && <RelatedPages pages={relatedPages} />}
+			{relatedPages.length > 0 && <RelatedPages pages={relatedPages} features={settings.features} />}
 		</>
 	);
 }

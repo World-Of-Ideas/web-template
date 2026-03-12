@@ -1,14 +1,12 @@
 "use client";
 
 import { useState, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Turnstile } from "@/components/shared/turnstile";
 
 export function LoginForm() {
-	const router = useRouter();
 	const [password, setPassword] = useState("");
 	const [turnstileToken, setTurnstileToken] = useState("");
 	const [isSubmitting, setIsSubmitting] = useState(false);
@@ -39,7 +37,9 @@ export function LoginForm() {
 				return;
 			}
 
-			router.push("/admin/dashboard");
+			// Full page navigation to force server re-render of admin layout
+			// (client-side router.push would reuse the cached login layout without sidebar)
+			window.location.href = "/admin/dashboard";
 		} catch {
 			setError("Something went wrong. Please try again.");
 		} finally {

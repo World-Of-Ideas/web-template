@@ -23,9 +23,10 @@ interface PillarTemplateProps {
 	content: ContentBlock[] | null;
 	childPages: ChildPage[];
 	cardVariant?: ThemeSettings["postCardVariant"];
+	features?: Record<string, boolean>;
 }
 
-export function PillarTemplate({ title, description, content, childPages, cardVariant = "bordered" }: PillarTemplateProps) {
+export function PillarTemplate({ title, description, content, childPages, cardVariant = "bordered", features }: PillarTemplateProps) {
 	return (
 		<div className="mx-auto max-w-[1128px] px-4 py-12 sm:px-6 sm:py-16">
 			<div className="max-w-3xl">
@@ -45,7 +46,7 @@ export function PillarTemplate({ title, description, content, childPages, cardVa
 				<div>
 					{content && content.length > 0 && (
 						<div className="max-w-3xl">
-							<ContentRenderer blocks={content} />
+							<ContentRenderer blocks={content} features={features} />
 						</div>
 					)}
 

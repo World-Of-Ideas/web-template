@@ -87,6 +87,7 @@ export default async function CatchAllPage({
 						title={title}
 						description={description}
 						content={content}
+						features={settings.features}
 					/>
 				);
 			case "listing":
@@ -97,6 +98,7 @@ export default async function CatchAllPage({
 						content={content}
 						childPages={children}
 						cardVariant={cardVariant}
+						features={settings.features}
 					/>
 				);
 			case "pillar":
@@ -107,6 +109,7 @@ export default async function CatchAllPage({
 						content={content}
 						childPages={children}
 						cardVariant={cardVariant}
+						features={settings.features}
 					/>
 				);
 			default:
@@ -116,6 +119,7 @@ export default async function CatchAllPage({
 						description={description}
 						content={content}
 						childPages={children}
+						features={settings.features}
 					/>
 				);
 		}
@@ -138,7 +142,7 @@ export default async function CatchAllPage({
 			{renderTemplate()}
 
 			{faqs.length > 0 && <FaqSection faqs={faqs} />}
-			{relatedPages.length > 0 && <RelatedPages pages={relatedPages} />}
+			{relatedPages.length > 0 && <RelatedPages pages={relatedPages} features={settings.features} />}
 		</>
 	);
 }

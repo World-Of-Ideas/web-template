@@ -13,9 +13,10 @@ interface DefaultTemplateProps {
 	description: string | null;
 	content: ContentBlock[] | null;
 	childPages: ChildPage[];
+	features?: Record<string, boolean>;
 }
 
-export function DefaultTemplate({ title, description, content, childPages }: DefaultTemplateProps) {
+export function DefaultTemplate({ title, description, content, childPages, features }: DefaultTemplateProps) {
 	return (
 		<div className="mx-auto max-w-3xl px-4 py-12 sm:px-6 sm:py-16">
 			<h1 className="text-3xl font-normal tracking-tight sm:text-4xl md:text-5xl">
@@ -30,7 +31,7 @@ export function DefaultTemplate({ title, description, content, childPages }: Def
 
 			{content && content.length > 0 && (
 				<div className="mt-8">
-					<ContentRenderer blocks={content} />
+					<ContentRenderer blocks={content} features={features} />
 				</div>
 			)}
 

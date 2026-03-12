@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { apiSuccess, apiError } from "@/lib/api";
 import { requireAdminSession } from "@/lib/admin-auth";
+import { getSiteSettingsDirect } from "@/lib/site-settings";
 import {
 	getCampaignById,
 	getActiveSubscriberEmails,
@@ -18,6 +19,9 @@ export async function POST(
 ) {
 	if (!(await requireAdminSession())) {
 		return apiError("UNAUTHORIZED", "Not authenticated");
+	}
+	if (!(await getSiteSettingsDirect()).features.waitlist) {
+		return apiError("NOT_FOUND", "Feature not available");
 	}
 
 	const { id } = await params;

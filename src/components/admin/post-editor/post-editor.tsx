@@ -88,11 +88,13 @@ export function PostEditor({ post }: PostEditorProps) {
 	);
 	const [coverImage, setCoverImage] = useState(post?.coverImage ?? "");
 	const [published, setPublished] = useState(post?.published ?? false);
-	const [scheduledPublishAt, setScheduledPublishAt] = useState(
-		post?.scheduledPublishAt
-			? new Date(post.scheduledPublishAt + "Z").toISOString().slice(0, 16)
-			: "",
-	);
+	const [scheduledPublishAt, setScheduledPublishAt] = useState(() => {
+		if (!post?.scheduledPublishAt) return "";
+		const raw = post.scheduledPublishAt;
+		// Handle both ISO (2026-03-12T14:27:00.000Z) and D1 (2026-03-12 14:27:00) formats
+		const d = new Date(raw.includes("T") ? raw : raw.replace(" ", "T") + "Z");
+		return isNaN(d.getTime()) ? "" : d.toISOString().slice(0, 16);
+	});
 	const [content, setContent] = useState<ContentBlock[]>(
 		post?.content ?? [],
 	);

@@ -6,9 +6,10 @@ interface LandingTemplateProps {
 	title: string;
 	description: string | null;
 	content: ContentBlock[] | null;
+	features?: Record<string, boolean>;
 }
 
-export function LandingTemplate({ title, description, content }: LandingTemplateProps) {
+export function LandingTemplate({ title, description, content, features }: LandingTemplateProps) {
 	return (
 		<>
 			{/* Hero */}
@@ -30,7 +31,7 @@ export function LandingTemplate({ title, description, content }: LandingTemplate
 			{content && content.length > 0 && (
 				<section className="px-4 py-12 sm:px-6 sm:py-16">
 					<div className="mx-auto max-w-3xl">
-						<ContentRenderer blocks={content} />
+						<ContentRenderer blocks={content} features={features} />
 					</div>
 				</section>
 			)}

@@ -30,9 +30,10 @@ import { TocBlock } from "./blocks/toc-block";
 
 interface ContentRendererProps {
 	blocks: ContentBlock[];
+	features?: Record<string, boolean>;
 }
 
-export function ContentRenderer({ blocks }: ContentRendererProps) {
+export function ContentRenderer({ blocks, features }: ContentRendererProps) {
 	return (
 		<div className="space-y-4 sm:space-y-6">
 			{blocks.map((block, index) => {
@@ -92,6 +93,7 @@ export function ContentRenderer({ blocks }: ContentRendererProps) {
 					case "review":
 						return <ReviewBlock key={key} block={block} />;
 					case "emailCapture":
+						if (features && !features.waitlist) return null;
 						return <EmailCaptureBlock key={key} block={block} />;
 					case "tableOfContents":
 						return <TocBlock key={key} block={block} allBlocks={blocks} />;

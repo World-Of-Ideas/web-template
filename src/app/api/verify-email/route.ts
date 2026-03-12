@@ -2,9 +2,14 @@ import { NextRequest } from "next/server";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { apiSuccess, apiError, getClientIp } from "@/lib/api";
 import { checkRateLimit } from "@/lib/rate-limit";
+import { getSiteSettingsDirect } from "@/lib/site-settings";
 import { getSubscriberByEmail, verifyUnsubscribeToken, verifySubscriberEmail } from "@/lib/waitlist";
 
 export async function GET(request: NextRequest) {
+	if (!(await getSiteSettingsDirect()).features.waitlist) {
+		return apiError("NOT_FOUND", "Feature not available");
+	}
+
 	const ip = getClientIp(request);
 	if (!checkRateLimit(`verify-email:${ip}`, 10, 60_000)) {
 		return apiError("RATE_LIMITED", "Too many requests. Please try again later.");

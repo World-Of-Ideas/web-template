@@ -36,11 +36,11 @@ export default async function DashboardPage() {
 	const settings = await getSiteSettings();
 
 	const [postCount, contactCount, subscriberCount, signupTrend, contactTrend, topReferrers] = await Promise.all([
-		getPostCount(),
-		getContactCount(),
+		settings.features.blog ? getPostCount() : Promise.resolve(0),
+		settings.features.contact ? getContactCount() : Promise.resolve(0),
 		settings.features.waitlist ? getSubscriberCount() : Promise.resolve(0),
 		settings.features.waitlist ? getSignupTrend(30) : Promise.resolve([]),
-		getContactTrend(30),
+		settings.features.contact ? getContactTrend(30) : Promise.resolve([]),
 		settings.features.waitlist ? getTopReferrers(5) : Promise.resolve([]),
 	]);
 
@@ -52,11 +52,12 @@ export default async function DashboardPage() {
 				{settings.features.waitlist && (
 					<StatsCard title="Subscribers" value={subscriberCount} />
 				)}
-				<StatsCard title="Published Posts" value={postCount} />
-				<StatsCard
-					title="Contact Submissions"
-					value={contactCount}
-				/>
+				{settings.features.blog && (
+					<StatsCard title="Published Posts" value={postCount} />
+				)}
+				{settings.features.contact && (
+					<StatsCard title="Contact Submissions" value={contactCount} />
+				)}
 			</div>
 
 			<div className="grid gap-6 lg:grid-cols-2">
@@ -70,14 +71,16 @@ export default async function DashboardPage() {
 						</CardContent>
 					</Card>
 				)}
-				<Card>
-					<CardHeader>
-						<CardTitle className="text-sm font-medium">Contact Submissions (Last 30 Days)</CardTitle>
-					</CardHeader>
-					<CardContent>
-						<SignupChart data={contactTrend} label="contact" />
-					</CardContent>
-				</Card>
+				{settings.features.contact && (
+					<Card>
+						<CardHeader>
+							<CardTitle className="text-sm font-medium">Contact Submissions (Last 30 Days)</CardTitle>
+						</CardHeader>
+						<CardContent>
+							<SignupChart data={contactTrend} label="contact" />
+						</CardContent>
+					</Card>
+				)}
 			</div>
 
 			{settings.features.waitlist && topReferrers.length > 0 && (

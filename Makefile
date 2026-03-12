@@ -3,7 +3,7 @@
        db-generate db-migrate db-seed db-studio db-reset \
        db-recreate db-recreate-uat db-seed-uat \
        deploy-uat deploy-prod preview preview-uat \
-       ci audit clean
+       ci audit clean nuke
 
 # ── Dev ──────────────────────────────────────────────────────
 dev:                  ## Start Next.js dev server
@@ -130,6 +130,12 @@ db-migrate-prod:      ## Apply migrations to Production D1 (remote)
 clean:                ## Remove build artifacts and test results
 	rm -rf .next .open-next test-results playwright-report
 
+nuke:                 ## Full reset: wipe everything, reinstall, recreate DB, start dev
+	rm -rf .next .open-next node_modules .wrangler/state/v3/d1 test-results playwright-report
+	npm install
+	npx wrangler d1 migrations apply DB --local
+	npx wrangler d1 execute DB --local --file=src/db/seed.sql
+
 cf-typegen:           ## Generate Cloudflare env type definitions
 	npx wrangler types --env-interface CloudflareEnv env.d.ts
 
@@ -154,7 +160,7 @@ help:                 ## Show this help
 	@grep -E '^(deploy-uat|deploy-prod|preview-uat):' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 	@echo "\033[1mMisc\033[0m"
-	@grep -E '^(clean|cf-typegen|help):' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
+	@grep -E '^(clean|nuke|cf-typegen|help):' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-20s\033[0m %s\n", $$1, $$2}'
 	@echo ""
 
 .DEFAULT_GOAL := help

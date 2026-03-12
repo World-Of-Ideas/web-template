@@ -1,8 +1,13 @@
 import { NextRequest } from "next/server";
 import { apiSuccess, apiError } from "@/lib/api";
 import { requireAdminSession } from "@/lib/admin-auth";
+import { getSiteSettingsDirect } from "@/lib/site-settings";
 import { getCampaignById, updateCampaign, deleteCampaign } from "@/lib/campaigns";
 import { validateCampaignUpdateBody } from "@/lib/validation";
+
+async function requireWaitlistFeature() {
+	return (await getSiteSettingsDirect()).features.waitlist;
+}
 
 export async function GET(
 	_request: NextRequest,
@@ -10,6 +15,9 @@ export async function GET(
 ) {
 	if (!(await requireAdminSession())) {
 		return apiError("UNAUTHORIZED", "Not authenticated");
+	}
+	if (!(await requireWaitlistFeature())) {
+		return apiError("NOT_FOUND", "Feature not available");
 	}
 
 	const { id } = await params;
@@ -28,6 +36,9 @@ export async function PUT(
 ) {
 	if (!(await requireAdminSession())) {
 		return apiError("UNAUTHORIZED", "Not authenticated");
+	}
+	if (!(await requireWaitlistFeature())) {
+		return apiError("NOT_FOUND", "Feature not available");
 	}
 
 	try {
@@ -61,6 +72,9 @@ export async function DELETE(
 ) {
 	if (!(await requireAdminSession())) {
 		return apiError("UNAUTHORIZED", "Not authenticated");
+	}
+	if (!(await requireWaitlistFeature())) {
+		return apiError("NOT_FOUND", "Feature not available");
 	}
 
 	try {

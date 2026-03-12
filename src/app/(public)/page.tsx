@@ -40,9 +40,42 @@ export default async function HomePage() {
 
 	const isPreLaunch = settings.features.waitlist;
 	const cta = isPreLaunch ? ctaConfig.preLaunch : ctaConfig.postLaunch;
+	const hasProductLink = !!(settings.productLinks.appUrl || settings.productLinks.appStoreUrl || settings.productLinks.playStoreUrl);
+	const showCta = isPreLaunch || hasProductLink;
 
 	const faqs = (homePage?.faqs ?? []) as FAQ[];
 	const relatedPages = (homePage?.relatedPages ?? []) as RelatedPage[];
+
+	const heroButtons = (
+		<>
+			{isPreLaunch ? (
+				<Link
+					href="/waitlist"
+					className="rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
+				>
+					{cta.buttonText}
+				</Link>
+			) : (
+				<>
+					{settings.productLinks.appUrl && (
+						<a href={settings.productLinks.appUrl} className="rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90">
+							{cta.buttonText}
+						</a>
+					)}
+					{settings.productLinks.appStoreUrl && (
+						<a href={settings.productLinks.appStoreUrl} className="rounded-full border border-border px-8 py-3 text-sm font-medium transition-colors hover:bg-accent">
+							App Store
+						</a>
+					)}
+					{settings.productLinks.playStoreUrl && (
+						<a href={settings.productLinks.playStoreUrl} className="rounded-full border border-border px-8 py-3 text-sm font-medium transition-colors hover:bg-accent">
+							Play Store
+						</a>
+					)}
+				</>
+			)}
+		</>
+	);
 
 	return (
 		<>
@@ -78,34 +111,11 @@ export default async function HomePage() {
 							<p className="mt-4 max-w-xl text-base text-muted-foreground sm:mt-6 sm:text-lg md:text-xl">
 								{settings.description}
 							</p>
-							<div className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:gap-4">
-								{isPreLaunch ? (
-									<Link
-										href="/waitlist"
-										className="rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
-									>
-										{cta.buttonText}
-									</Link>
-								) : (
-									<>
-										{settings.productLinks.appUrl && (
-											<a href={settings.productLinks.appUrl} className="rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90">
-												{cta.buttonText}
-											</a>
-										)}
-										{settings.productLinks.appStoreUrl && (
-											<a href={settings.productLinks.appStoreUrl} className="rounded-full border border-border px-8 py-3 text-sm font-medium transition-colors hover:bg-accent">
-												App Store
-											</a>
-										)}
-										{settings.productLinks.playStoreUrl && (
-											<a href={settings.productLinks.playStoreUrl} className="rounded-full border border-border px-8 py-3 text-sm font-medium transition-colors hover:bg-accent">
-												Play Store
-											</a>
-										)}
-									</>
-								)}
-							</div>
+							{showCta && (
+								<div className="mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:gap-4">
+									{heroButtons}
+								</div>
+							)}
 						</div>
 						<div className="relative hidden md:block">
 							<GradientBackground />
@@ -122,34 +132,11 @@ export default async function HomePage() {
 						<p className="mx-auto mt-4 max-w-2xl text-base text-muted-foreground sm:mt-6 sm:text-lg md:text-xl">
 							{settings.description}
 						</p>
-						<div className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row sm:gap-4">
-							{isPreLaunch ? (
-								<Link
-									href="/waitlist"
-									className="rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
-								>
-									{cta.buttonText}
-								</Link>
-							) : (
-								<>
-									{settings.productLinks.appUrl && (
-										<a href={settings.productLinks.appUrl} className="rounded-full bg-primary px-8 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90">
-											{cta.buttonText}
-										</a>
-									)}
-									{settings.productLinks.appStoreUrl && (
-										<a href={settings.productLinks.appStoreUrl} className="rounded-full border border-border px-8 py-3 text-sm font-medium transition-colors hover:bg-accent">
-											App Store
-										</a>
-									)}
-									{settings.productLinks.playStoreUrl && (
-										<a href={settings.productLinks.playStoreUrl} className="rounded-full border border-border px-8 py-3 text-sm font-medium transition-colors hover:bg-accent">
-											Play Store
-										</a>
-									)}
-								</>
-							)}
-						</div>
+						{showCta && (
+							<div className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row sm:gap-4">
+								{heroButtons}
+							</div>
+						)}
 					</div>
 				</section>
 			)}
@@ -158,7 +145,7 @@ export default async function HomePage() {
 			{homePage?.content && homePage.content.length > 0 && (
 				<section className="px-4 py-12 sm:px-6 sm:py-16">
 					<div className="mx-auto max-w-3xl">
-						<ContentRenderer blocks={homePage.content} />
+						<ContentRenderer blocks={homePage.content} features={settings.features} />
 					</div>
 				</section>
 			)}
@@ -195,19 +182,21 @@ export default async function HomePage() {
 			)}
 
 			{/* CTA Section */}
-			<CtaSection
-				title={cta.heading}
-				description={cta.description}
-				buttonText={cta.buttonText}
-				buttonHref={isPreLaunch ? "/waitlist" : (settings.productLinks.appUrl || "/waitlist")}
-				variant={settings.theme.ctaSectionVariant}
-			/>
+			{showCta && (
+				<CtaSection
+					title={cta.heading}
+					description={cta.description}
+					buttonText={cta.buttonText}
+					buttonHref={isPreLaunch ? "/waitlist" : (settings.productLinks.appUrl || settings.productLinks.appStoreUrl || settings.productLinks.playStoreUrl || "/")}
+					variant={settings.theme.ctaSectionVariant}
+				/>
+			)}
 
 			{/* FAQs */}
 			{faqs.length > 0 && <FaqSection faqs={faqs} />}
 
 			{/* Related Pages */}
-			{relatedPages.length > 0 && <RelatedPages pages={relatedPages} />}
+			{relatedPages.length > 0 && <RelatedPages pages={relatedPages} features={settings.features} />}
 		</>
 	);
 }
