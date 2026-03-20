@@ -3,7 +3,7 @@ import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 import { cookies } from "next/headers";
 import { validateSession } from "@/lib/admin";
-import { getSiteSettings } from "@/lib/site-settings";
+import { getSiteSettingsDirect } from "@/lib/site-settings";
 import { getPostById } from "@/lib/blog";
 import { ContentRenderer } from "@/components/content/content-renderer";
 import { FaqSection } from "@/components/layout/faq-section";
@@ -25,7 +25,7 @@ export default async function PostPreviewPage({
 	const sessionId = cookieStore.get("admin_session")?.value;
 	if (!sessionId || !(await validateSession(sessionId))) redirect("/admin");
 
-	const settings = await getSiteSettings();
+	const settings = await getSiteSettingsDirect();
 	if (!settings.features.blog) notFound();
 
 	const { id } = await params;

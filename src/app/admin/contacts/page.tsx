@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getSiteSettings } from "@/lib/site-settings";
+import { getSiteSettingsDirect } from "@/lib/site-settings";
 import { getContactSubmissions } from "@/lib/contact";
 import { ExportCsvButton } from "@/components/admin/export-csv-button";
 import {
@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ContactsPage() {
-	const settings = await getSiteSettings();
+	const settings = await getSiteSettingsDirect();
 	if (!settings.features.contact) notFound();
 
 	const { items: contacts, total } = await getContactSubmissions(1, 50);

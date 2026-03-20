@@ -1,4 +1,5 @@
 import { execSync } from "child_process";
+import { rmSync } from "fs";
 import { resolve } from "path";
 
 /**
@@ -13,6 +14,10 @@ export default function globalSetup() {
 			stdio: "pipe",
 		});
 
+	// Clear Next.js ISR/fetch cache so stale unstable_cache entries
+	// (e.g. site-settings) don't survive across test runs.
+	rmSync(resolve(cwd, ".next/cache"), { recursive: true, force: true });
+
 	// Clear all tables (order matters for FK constraints) and reset auto-increment
 	run("DELETE FROM giveaway_actions");
 	run("DELETE FROM giveaway_entries");
@@ -22,6 +27,7 @@ export default function globalSetup() {
 	run("DELETE FROM pages");
 	run("DELETE FROM admin_sessions");
 	run("DELETE FROM tracking_settings");
+	run("DELETE FROM site_settings");
 	run("DELETE FROM sqlite_sequence");
 
 	// Run the full seed script to populate system pages, sample data, etc.

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getSiteSettings } from "@/lib/site-settings";
+import { getSiteSettingsDirect } from "@/lib/site-settings";
 import { SettingsEditor } from "@/components/admin/settings-editor";
 
 export const metadata: Metadata = {
@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SettingsPage() {
-	const settings = await getSiteSettings();
+	const settings = await getSiteSettingsDirect();
 
 	return (
 		<div className="space-y-6">

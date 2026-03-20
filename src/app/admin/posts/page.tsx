@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getAllPostSummaries } from "@/lib/blog";
-import { getSiteSettings } from "@/lib/site-settings";
+import { getSiteSettingsDirect } from "@/lib/site-settings";
 import { Button } from "@/components/ui/button";
 import { PostsList } from "@/components/admin/posts-list";
 
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 };
 
 export default async function PostsPage() {
-	const settings = await getSiteSettings();
+	const settings = await getSiteSettingsDirect();
 	if (!settings.features.blog) notFound();
 
 	const posts = await getAllPostSummaries();

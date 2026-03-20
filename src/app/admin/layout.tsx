@@ -2,7 +2,7 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { validateSession } from "@/lib/admin";
-import { getSiteSettings } from "@/lib/site-settings";
+import { getSiteSettingsDirect } from "@/lib/site-settings";
 import { LogoutButton } from "@/components/admin/logout-button";
 import { cn } from "@/lib/utils";
 
@@ -56,7 +56,7 @@ export default async function AdminLayout({
 		return <>{children}</>;
 	}
 
-	const settings = await getSiteSettings();
+	const settings = await getSiteSettingsDirect();
 
 	const visibleLinks = sidebarLinks.filter(
 		(link) => !link.feature || settings.features[link.feature],

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getSiteSettings } from "@/lib/site-settings";
+import { getSiteSettingsDirect } from "@/lib/site-settings";
 import { LoginForm } from "@/components/admin/login-form";
 import {
 	Card,
@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/card";
 
 export async function generateMetadata(): Promise<Metadata> {
-	const settings = await getSiteSettings();
+	const settings = await getSiteSettingsDirect();
 	return {
 		title: `Admin Login | ${settings.name}`,
 	};

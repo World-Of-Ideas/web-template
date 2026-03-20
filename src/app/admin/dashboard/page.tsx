@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { getSiteSettings } from "@/lib/site-settings";
+import { getSiteSettingsDirect } from "@/lib/site-settings";
 import { getSubscriberCount } from "@/lib/waitlist";
 import { getPostCount } from "@/lib/blog";
 import { getContactCount } from "@/lib/contact";
@@ -33,7 +33,7 @@ function StatsCard({
 }
 
 export default async function DashboardPage() {
-	const settings = await getSiteSettings();
+	const settings = await getSiteSettingsDirect();
 
 	const [postCount, contactCount, subscriberCount, signupTrend, contactTrend, topReferrers] = await Promise.all([
 		settings.features.blog ? getPostCount() : Promise.resolve(0),

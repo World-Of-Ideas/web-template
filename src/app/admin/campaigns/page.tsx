@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getSiteSettings } from "@/lib/site-settings";
+import { getSiteSettingsDirect } from "@/lib/site-settings";
 import { getCampaigns } from "@/lib/campaigns";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,7 +27,7 @@ const statusVariant: Record<string, "secondary" | "outline" | "default" | "destr
 };
 
 export default async function CampaignsPage() {
-	const settings = await getSiteSettings();
+	const settings = await getSiteSettingsDirect();
 	if (!settings.features.waitlist) notFound();
 
 	const campaigns = await getCampaigns();

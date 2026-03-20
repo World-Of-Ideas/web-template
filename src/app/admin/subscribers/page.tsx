@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getSiteSettings } from "@/lib/site-settings";
+import { getSiteSettingsDirect } from "@/lib/site-settings";
 import { getSubscribers } from "@/lib/waitlist";
 import { Badge } from "@/components/ui/badge";
 import { ExportCsvButton } from "@/components/admin/export-csv-button";
@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 };
 
 export default async function SubscribersPage() {
-	const settings = await getSiteSettings();
+	const settings = await getSiteSettingsDirect();
 	if (!settings.features.waitlist) notFound();
 
 	const { items: subscribers, total } = await getSubscribers(1, 50);

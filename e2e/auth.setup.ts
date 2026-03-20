@@ -11,6 +11,11 @@ setup("authenticate as admin", async ({ request }) => {
 	});
 	expect(res.ok()).toBeTruthy();
 
+	// Touch settings to invalidate the Next.js ISR cache (unstable_cache).
+	// Without this, a reused dev server may serve stale site_settings from
+	// before global-setup re-seeded the database.
+	await request.put("/api/admin/settings", { data: {} });
+
 	// Save the signed-in state (cookies) so other tests can reuse it
 	await request.storageState({ path: AUTH_FILE });
 });
