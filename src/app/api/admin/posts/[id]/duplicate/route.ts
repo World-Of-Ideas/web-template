@@ -3,6 +3,7 @@ import { apiSuccess, apiError } from "@/lib/api";
 import { requireAdminSession } from "@/lib/admin-auth";
 import { getSiteSettingsDirect } from "@/lib/site-settings";
 import { duplicatePost } from "@/lib/blog";
+import { enqueueEmail } from "@/lib/queue";
 
 export async function POST(
   _request: NextRequest,
@@ -25,6 +26,15 @@ export async function POST(
     const post = await duplicatePost(numId);
     if (!post) {
       return apiError("NOT_FOUND", "Post not found");
+    }
+
+    // Queue OG image generation (fire-and-forget)
+    try {
+      const { getEnv } = await import("@/db");
+      const env = await getEnv();
+      await enqueueEmail((env as unknown as Record<string, unknown>).EMAIL_QUEUE as Queue, { type: "og_post", payload: { slug: post.slug } });
+    } catch {
+      // OG generation is best-effort
     }
 
     return apiSuccess(post, 201);

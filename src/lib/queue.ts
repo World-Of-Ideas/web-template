@@ -7,7 +7,10 @@ export type EmailJob =
 	| { type: "campaign_email"; payload: { to: string; subject: string; html: string } }
 	| { type: "email_verification"; payload: { email: string; name: string } }
 	| { type: "newsletter_confirmation"; payload: { email: string; name: string } }
-	| { type: "newsletter_admin_notification"; payload: { email: string; name: string; source?: string } };
+	| { type: "newsletter_admin_notification"; payload: { email: string; name: string; source?: string } }
+	| { type: "og_site"; payload: Record<string, never> }
+	| { type: "og_post"; payload: { slug: string } }
+	| { type: "og_page"; payload: { slug: string } };
 
 export async function enqueueEmail(queue: Queue, job: EmailJob): Promise<void> {
 	await queue.send(job);

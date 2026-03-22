@@ -6,6 +6,7 @@ import { isSafeUrl } from "@/lib/utils";
 
 const VALID_EVENTS = [
 	"waitlist.signup",
+	"newsletter.signup",
 	"giveaway.entry",
 	"contact.submission",
 ];
@@ -38,7 +39,7 @@ export async function POST(request: NextRequest) {
 		if (url.length > 2000) {
 			return apiError("VALIDATION_ERROR", "URL is too long");
 		}
-		if (!isSafeUrl(url)) {
+		if (!url.toLowerCase().startsWith("https://") || !isSafeUrl(url)) {
 			return apiError("VALIDATION_ERROR", "URL must be a valid HTTPS URL");
 		}
 		if (!Array.isArray(events) || events.length === 0) {

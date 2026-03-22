@@ -1,6 +1,10 @@
 import type { EmailJob } from "./queue";
 import { sendEmail } from "./resend";
 import { generateUnsubscribeToken } from "./subscribers";
+import { generateSiteOg, generatePostOg, generatePageOg } from "./og";
+import { getSiteSettingsDirect } from "./site-settings";
+import { getPublishedPostBySlug } from "./blog";
+import { getPublishedPageBySlug } from "./pages";
 
 /** Escape HTML special characters to prevent injection in email templates. */
 function escapeHtml(str: string): string {
@@ -165,6 +169,37 @@ ${sourceLine}`,
 <p><strong>Email:</strong> ${email}</p>
 ${sourceLine}`,
 					});
+					break;
+				}
+
+				case "og_site": {
+					const bucket = (env as unknown as Record<string, unknown>).ASSETS_BUCKET as R2Bucket;
+					const settings = await getSiteSettingsDirect();
+					await generateSiteOg(settings, bucket);
+					break;
+				}
+
+				case "og_post": {
+					const bucket = (env as unknown as Record<string, unknown>).ASSETS_BUCKET as R2Bucket;
+					const [post, settings] = await Promise.all([
+						getPublishedPostBySlug(job.payload.slug),
+						getSiteSettingsDirect(),
+					]);
+					if (post) {
+						await generatePostOg(post, settings, bucket);
+					}
+					break;
+				}
+
+				case "og_page": {
+					const bucket = (env as unknown as Record<string, unknown>).ASSETS_BUCKET as R2Bucket;
+					const [page, settings] = await Promise.all([
+						getPublishedPageBySlug(job.payload.slug),
+						getSiteSettingsDirect(),
+					]);
+					if (page) {
+						await generatePageOg(page, settings, bucket);
+					}
 					break;
 				}
 

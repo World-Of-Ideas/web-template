@@ -4,6 +4,8 @@ import { requireAdminSession } from "@/lib/admin-auth";
 import { getSiteSettingsDirect } from "@/lib/site-settings";
 import { updatePost, deletePost } from "@/lib/blog";
 import { validatePostUpdateBody } from "@/lib/validation";
+import { ogKeys } from "@/lib/og";
+import { enqueueEmail } from "@/lib/queue";
 
 export async function PUT(
 	request: NextRequest,
@@ -25,6 +27,16 @@ export async function PUT(
 		if (bodyError) return apiError("VALIDATION_ERROR", bodyError);
 		try {
 			const post = await updatePost(numId, body as Parameters<typeof updatePost>[1]);
+
+			// Queue OG image regeneration (fire-and-forget)
+			try {
+				const { getEnv } = await import("@/db");
+				const env = await getEnv();
+				await enqueueEmail((env as unknown as Record<string, unknown>).EMAIL_QUEUE as Queue, { type: "og_post", payload: { slug: post.slug } });
+			} catch {
+				// OG generation is best-effort
+			}
+
 			return apiSuccess(post);
 		} catch (err) {
 			if (err instanceof Error && err.message.includes("UNIQUE constraint failed")) {
@@ -64,6 +76,8 @@ export async function DELETE(
 				if (listed.objects.length > 0) {
 					await bucket.delete(listed.objects.map((o) => o.key));
 				}
+				// Also delete the OG image
+				await bucket.delete(ogKeys.post(deletedSlug));
 			} catch {
 				// R2 cleanup is best-effort
 			}

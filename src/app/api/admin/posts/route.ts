@@ -4,6 +4,7 @@ import { requireAdminSession } from "@/lib/admin-auth";
 import { getSiteSettingsDirect } from "@/lib/site-settings";
 import { getAllPostSummaries, createPost } from "@/lib/blog";
 import { validatePostBody } from "@/lib/validation";
+import { enqueueEmail } from "@/lib/queue";
 
 export async function GET() {
 	if (!(await requireAdminSession())) {
@@ -30,6 +31,16 @@ export async function POST(request: NextRequest) {
 		const bodyError = validatePostBody(body);
 		if (bodyError) return apiError("VALIDATION_ERROR", bodyError);
 		const post = await createPost(body as Parameters<typeof createPost>[0]);
+
+		// Queue OG image generation (fire-and-forget)
+		try {
+			const { getEnv } = await import("@/db");
+			const env = await getEnv();
+			await enqueueEmail((env as unknown as Record<string, unknown>).EMAIL_QUEUE as Queue, { type: "og_post", payload: { slug: post.slug } });
+		} catch {
+			// OG generation is best-effort
+		}
+
 		return apiSuccess(post, 201);
 	} catch {
 		return apiError("INTERNAL_ERROR", "Failed to create post");

@@ -3,6 +3,7 @@ import { apiSuccess, apiError } from "@/lib/api";
 import { requireAdminSession } from "@/lib/admin-auth";
 import { getSiteSettingsDirect, updateSiteSettings, invalidateSiteSettingsCache } from "@/lib/site-settings";
 import { validateSiteSettingsBody } from "@/lib/validation";
+import { enqueueEmail } from "@/lib/queue";
 
 export async function GET() {
 	if (!(await requireAdminSession())) {
@@ -43,6 +44,15 @@ export async function PUT(request: NextRequest) {
 		});
 
 		invalidateSiteSettingsCache();
+
+		// Queue site OG image regeneration (fire-and-forget)
+		try {
+			const { getEnv } = await import("@/db");
+			const env = await getEnv();
+			await enqueueEmail((env as unknown as Record<string, unknown>).EMAIL_QUEUE as Queue, { type: "og_site", payload: {} });
+		} catch {
+			// OG generation is best-effort
+		}
 
 		return apiSuccess({ success: true });
 	} catch {

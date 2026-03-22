@@ -74,7 +74,7 @@ async function deriveKey(password: string, salt: ArrayBuffer): Promise<ArrayBuff
 		["deriveBits"],
 	);
 	return crypto.subtle.deriveBits(
-		{ name: "PBKDF2", salt, iterations: 100_000, hash: "SHA-256" },
+		{ name: "PBKDF2", salt, iterations: 10_000, hash: "SHA-256" },
 		keyMaterial,
 		256,
 	);

@@ -13,12 +13,13 @@ export function slugifyHeading(text: string): string {
 /** Only allow safe URL protocols via allowlist approach. */
 export function isSafeUrl(url: string): boolean {
   const trimmed = url.trim();
+  // Reject protocol-relative URLs (//evil.com) before checking relative paths
+  if (trimmed.startsWith("//")) return false;
   // Relative URLs and fragment-only are safe
   if (trimmed.startsWith("/") || trimmed.startsWith("#") || trimmed.startsWith("?")) return true;
   // Allow only http(s), mailto, and tel protocols
   const lower = trimmed.toLowerCase();
   if (lower.startsWith("https://") || lower.startsWith("http://") || lower.startsWith("mailto:") || lower.startsWith("tel:")) return true;
   // Reject everything else (javascript:, data:, vbscript:, unknown protocols)
-  // Also reject protocol-relative URLs without explicit scheme
   return !trimmed.includes(":");
 }
