@@ -283,7 +283,4 @@ Run `make help` to see every available command, or refer to the table below:
 ## Documentation
 
 - `CLAUDE.md` — Architecture rules and development instructions
-- `docs/plan.md` — Original implementation plan
-- `docs/audit/` — Security audit reports
-- `docs/decisions/` — Architecture decision records (queues, ORM, releases, Terraform)
-- `docs/checklists/` — Operational checklists (clone template, deploy, add feature, add page)
+- Full project docs maintained externally — see project docs directory for architecture, API reference, security, deployment, audit reports, checklists, and decision records

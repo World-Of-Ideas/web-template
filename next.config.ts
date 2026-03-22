@@ -20,11 +20,12 @@ const nextConfig: NextConfig = {
 					{ key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
 					{ key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=()" },
 					// unsafe-inline required: Next.js 16 inline scripts + Tailwind styles
+					// unsafe-eval required in dev only: React 19 uses eval() for dev tooling (stack traces, error overlays)
 					{
 						key: "Content-Security-Policy",
 						value: [
 							"default-src 'self'",
-							"script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net",
+							`script-src 'self' 'unsafe-inline'${process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : ""} https://challenges.cloudflare.com https://www.googletagmanager.com https://www.google-analytics.com https://connect.facebook.net`,
 							"style-src 'self' 'unsafe-inline'",
 							"img-src 'self' data: https://*.r2.dev https://www.facebook.com",
 							"font-src 'self'",
